@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Meding Software Technik - All Rights Reserved.
+ * Copyright (c) 2015 Meding Software Technik - All Rights Reserved.
  */
 package com.uwemeding.yarg;
 

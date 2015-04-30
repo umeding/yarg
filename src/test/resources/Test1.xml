@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE application SYSTEM "src/main/resources/rest-desc/RestDesc.dtd">
+<application path="app" name="ApplicationConfig">
+	<package path="com.uwemeding.rest.test" />
+
+	<rest.calls path="rest" name="RestTest">
+		
+		<rest.call path="test" name="testCall">
+
+			<method type="post">
+				<desc>
+					Some test call.
+				</desc>
+				<requests>
+					<request content.type="json">
+						{
+						  "key": "SomeKey",
+						  "value": "SomeValue"
+						}
+					</request>
+				</requests>
+				<responses>
+					<response code="200" content.type="json">{"status":"OK"}</response>
+					<response code="400">On Error</response>
+				</responses>
+			</method>
+
+		</rest.call>
+		
+	</rest.calls>
+</application>
+

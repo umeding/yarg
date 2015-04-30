@@ -6,6 +6,7 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
 -->
 
 <!ENTITY % application                          "application" >
+<!ENTITY % package                              "package" >
 
 <!ENTITY % rest.calls                           "rest.calls" >
 <!ENTITY % rest.call                            "rest.call" >
@@ -17,7 +18,14 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
 <!ENTITY % request.parameters           		"request.parameters" >
 <!ENTITY % request.parameter            		"request.parameter" >
 
-<!ENTITY % path.attr                            "path CDATA #REQUIRED" >
+<!-- Path desc:
+    path is the REST path
+    name is the Java name
+-->
+<!ENTITY % path.attr                            "
+                                                 path CDATA #REQUIRED
+                                                 name CDATA #REQUIRED
+" >
 <!ENTITY % call.types                           "type (get | put | post | delete) 'get'" >
 
 <!ENTITY % responses                            "responses" >
@@ -33,10 +41,13 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
 <!-- 
      An application is the top level
 -->
-<!ELEMENT %application;                         ((%rest.calls;)*) >
+<!ELEMENT %application;                         (%package;,(%rest.calls;)*) >
 <!ATTLIST %application;
           %path.attr;
 >
+<!ELEMENT %package;								EMPTY >
+<!ATTLIST %package;
+          path CDATA #REQUIRED >
 
 <!ELEMENT %rest.calls;                          ((%rest.call;)*) >
 <!ATTLIST %rest.calls;
