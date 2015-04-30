@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (c) 2015 Meding Software Technik. All Rights Reserved.
+
+FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
+-->
+
+<!ENTITY % application                          "application" >
+
+<!ENTITY % rest.calls                           "rest.calls" >
+<!ENTITY % rest.call                            "rest.call" >
+
+<!ENTITY % method                               "method" >
+<!ENTITY % desc                                 "desc" >
+<!ENTITY % request.templates            		"request.templates" >
+<!ENTITY % request.template                     "request.template" >
+<!ENTITY % request.parameters           		"request.parameters" >
+<!ENTITY % request.parameter            		"request.parameter" >
+
+<!ENTITY % path.attr                            "path CDATA #REQUIRED" >
+<!ENTITY % call.types                           "type (get | put | post | delete) 'get'" >
+
+<!ENTITY % responses                            "responses" >
+<!ENTITY % response                             "response" >
+
+<!ENTITY % requests                             "requests" >
+<!ENTITY % request                              "request" >
+
+<!ENTITY % content.type                         "content.type (json | xml | csv | text ) 'text'">
+
+<!-- ...................................................................... -->
+<!-- Application .......................................................... -->
+<!-- 
+     An application is the top level
+-->
+<!ELEMENT %application;                         ((%rest.calls;)*) >
+<!ATTLIST %application;
+          %path.attr;
+>
+
+<!ELEMENT %rest.calls;                          ((%rest.call;)*) >
+<!ATTLIST %rest.calls;
+          %path.attr;
+>
+
+<!ELEMENT %rest.call;                           ((%method;)*) >
+<!ATTLIST %rest.call;
+          %path.attr;
+>
+
+<!-- Description -->
+<!ELEMENT %desc;                                (#PCDATA) >
+<!-- Request templates -->
+<!ELEMENT %request.templates;           ((%request.templates;)*) >
+<!ELEMENT %request.template;            (#PCDATA) >
+<!ATTLIST %request.template;
+          name    CDATA #REQUIRED
+          type    CDATA #REQUIRED >
+
+<!-- Request parameters and request data are mutually exclusive usually -->
+<!-- Request parameters -->
+<!ELEMENT %request.parameters;          ((%request.parameter;)*) >
+<!ELEMENT %request.parameter;           (#PCDATA) >
+<!ATTLIST %request.parameter;
+          name    CDATA #REQUIRED
+          type    CDATA #REQUIRED >
+<!-- Request data -->
+<!ELEMENT %requests;                            ((%request;)*) >
+<!ELEMENT %request;                                     (#PCDATA) >
+<!ATTLIST %request;
+          %content.type;
+>
+<!-- Responses -->
+<!ELEMENT %responses;                           ((%response;)*) >
+<!ELEMENT %response;                            (#PCDATA) >
+<!ATTLIST %response;
+          code    CDATA #REQUIRED 
+          %content.type;
+>
+
+<!ELEMENT %method;                    (%desc;,%request.templates;,%requests;,%request.parameters;,%responses;) >
+<!ATTLIST %method;
+          %call.types;
+>
