@@ -72,6 +72,9 @@ public class Yarg {
 			throw new YargException("must declare one formatter");
 		}
 
+		// allow DTD access
+		System.setProperty("javax.xml.accessExternalDTD", "all");
+
 		// now loop through the input files
 		for (int i = options.getOptind(); i < av.length; i++) {
 			try (FileInputStream fp = new FileInputStream(av[i])) {

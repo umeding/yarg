@@ -31,7 +31,6 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
 <!ENTITY % responses                            "responses" >
 <!ENTITY % response                             "response" >
 
-<!ENTITY % requests                             "requests" >
 <!ENTITY % request                              "request" >
 
 <!ENTITY % content.type                         "content.type (json | xml | csv | text ) 'text'">
@@ -76,9 +75,10 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
           name    CDATA #REQUIRED
           type    CDATA #REQUIRED >
 <!-- Request data -->
-<!ELEMENT %requests;                            ((%request;)*) >
 <!ELEMENT %request;                                     (#PCDATA) >
 <!ATTLIST %request;
+          name    CDATA #REQUIRED
+          type    CDATA #REQUIRED
           %content.type;
 >
 <!-- Responses -->
@@ -89,7 +89,7 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
           %content.type;
 >
 
-<!ELEMENT %method;                    (%desc;,%request.templates;,%requests;,%request.parameters;,%responses;) >
+<!ELEMENT %method;                    (%desc;,%request.templates;,%request;,%request.parameters;,%responses;) >
 <!ATTLIST %method;
           %call.types;
 >

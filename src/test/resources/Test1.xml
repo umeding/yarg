@@ -11,14 +11,12 @@
 				<desc>
 					Some test call.
 				</desc>
-				<requests>
-					<request content.type="json">
-						{
-						  "key": "SomeKey",
-						  "value": "SomeValue"
-						}
-					</request>
-				</requests>
+				<request name="key" type="com.uwemeding.rest.KeyDTO" content.type="json">
+					{
+					"key": "SomeKey",
+					"value": "SomeValue"
+					}
+				</request>
 				<responses>
 					<response code="200" content.type="json">{"status":"OK"}</response>
 					<response code="400">On Error</response>

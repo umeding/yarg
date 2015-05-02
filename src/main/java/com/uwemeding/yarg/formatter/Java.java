@@ -8,13 +8,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
  * Helper to create a Java source class.
- *
+ * <p>
  * @author uwe
  */
 public class Java {
@@ -67,11 +69,15 @@ public class Java {
 
 	/**
 	 * Create the source file for a given class
-	 *
+	 * <p>
 	 * @param clazz is the class description
 	 * @throws java.io.IOException
 	 */
-	public static synchronized void createSource(Java._ClassBody clazz)
+	public static synchronized void createSource(Java._ClassBody clazz) throws IOException {
+		createSource(clazz, true);
+	}
+
+	public static synchronized void createSource(Java._ClassBody clazz, boolean overwrite)
 			throws IOException {
 		if (baseDir == null) {
 			throw new IOException("Base directory for output not set, use 'setBaseDirectory'");
@@ -85,14 +91,19 @@ public class Java {
 
 		File path = new File(baseDir, pkg);
 		path.mkdirs();
-		try (PrintWriter fp = new PrintWriter(new FileWriter(new File(path, clazz.getName() + ".java")))) {
-			clazz.emit(0, fp);
+
+		File sourceFile = new File(path, clazz.getName() + ".java");
+		// Overwrite check
+		if (overwrite || !sourceFile.exists()) {
+			try (PrintWriter fp = new PrintWriter(new FileWriter(sourceFile))) {
+				clazz.emit(0, fp);
+			}
 		}
 	}
 
 	/**
 	 * Write a comment at some indentation level.
-	 *
+	 * <p>
 	 * @param fp
 	 * @param text
 	 * @param indent
@@ -117,7 +128,7 @@ public class Java {
 
 	/**
 	 * Finish a comment.
-	 *
+	 * <p>
 	 * @param fp
 	 * @param indent
 	 */
@@ -131,11 +142,11 @@ public class Java {
 
 	/**
 	 * Write a comment indent only.
-	 *
+	 * <p>
 	 * @param fp
-	 * @param text 
-	 * @param indent 
-	 * @return 
+	 * @param text
+	 * @param indent
+	 * @return
 	 */
 	private static String emitCommentIndentNOnly(PrintWriter fp, String text, int indent) {
 		synchronized (lock) {
@@ -213,9 +224,9 @@ public class Java {
 
 		/**
 		 * Write the statement to the output stream.
-		 *
+		 * <p>
 		 * @param indent the text indent
-		 * @param fp the output stream
+		 * @param fp     the output stream
 		 */
 		void emit(int indent, PrintWriter fp);
 	}
@@ -242,7 +253,7 @@ public class Java {
 
 		/**
 		 * Adds a feature to the C attribute of the _StatementBlock object
-		 *
+		 * <p>
 		 * @param s The feature to be added to the C attribute
 		 */
 		public void addC(String s) {
@@ -257,9 +268,9 @@ public class Java {
 
 		/**
 		 * Write the indent.
-		 *
-		 * @param indent 
-		 * @param fp 
+		 * <p>
+		 * @param indent
+		 * @param fp
 		 */
 		public void emitIndent(int indent, PrintWriter fp) {
 			final String spaces = "                                                               ";
@@ -268,9 +279,9 @@ public class Java {
 
 		/**
 		 * Write the indent.
-		 *
-		 * @param indent 
-		 * @param fp 
+		 * <p>
+		 * @param indent
+		 * @param fp
 		 */
 		@SuppressWarnings("empty-statement")
 		public void emit(int indent, PrintWriter fp) {
@@ -376,7 +387,7 @@ public class Java {
 
 		/**
 		 * Adds a feature to the S attribute of the _StatementBlock object
-		 *
+		 * <p>
 		 * @param s The feature to be added to the S attribute
 		 */
 		public void addS(String s) {
@@ -405,11 +416,11 @@ public class Java {
 
 		/**
 		 * Adds a feature to the FOR attribute of the _StatementBlock object
-		 *
-		 * @param start The feature to be added to the FOR attribute
+		 * <p>
+		 * @param start     The feature to be added to the FOR attribute
 		 * @param condition The feature to be added to the FOR attribute
-		 * @param iter The feature to be added to the FOR attribute
-		 * @return 
+		 * @param iter      The feature to be added to the FOR attribute
+		 * @return
 		 */
 		public Java.FOR addFOR(String start, String condition, String iter) {
 			Java.FOR f = new Java.FOR(start, condition, iter);
@@ -419,9 +430,9 @@ public class Java {
 
 		/**
 		 * Adds a feature to the IF attribute of the _StatementBlock object
-		 *
+		 * <p>
 		 * @param cond The feature to be added to the IF attribute
-		 * @return 
+		 * @return
 		 */
 		public Java.IF addIF(String cond) {
 			Java.IF i = new Java.IF(this, cond);
@@ -431,9 +442,9 @@ public class Java {
 
 		/**
 		 * Adds a feature to the WHILE attribute of the _StatementBlock object
-		 *
+		 * <p>
 		 * @param cond The feature to be added to the WHILE attribute
-		 * @return 
+		 * @return
 		 */
 		public Java.WHILE addWHILE(String cond) {
 			Java.WHILE w = new Java.WHILE(cond);
@@ -443,9 +454,9 @@ public class Java {
 
 		/**
 		 * Adds a feature to the SWITCH attribute of the _StatementBlock object
-		 *
+		 * <p>
 		 * @param cond The feature to be added to the SWITCH attribute
-		 * @return 
+		 * @return
 		 */
 		public Java.SWITCH addSWITCH(String cond) {
 			Java.SWITCH w = new Java.SWITCH(cond);
@@ -455,9 +466,9 @@ public class Java {
 
 		/**
 		 * Adds a feature to the DOWHILE attribute of the _StatementBlock object
-		 *
+		 * <p>
 		 * @param cond The feature to be added to the DOWHILE attribute
-		 * @return 
+		 * @return
 		 */
 		public Java.DOWHILE addDOWHILE(String cond) {
 			Java.DOWHILE w = new Java.DOWHILE(cond);
@@ -482,8 +493,8 @@ public class Java {
 
 		/**
 		 * Constructor for the S object
-		 *
-		 * @param s 
+		 * <p>
+		 * @param s
 		 */
 		public S(String s) {
 			if (s != null) {
@@ -493,9 +504,9 @@ public class Java {
 
 		/**
 		 * Write a statement.
-		 *
-		 * @param indent 
-		 * @param fp 
+		 * <p>
+		 * @param indent
+		 * @param fp
 		 */
 		@Override
 		public void emit(int indent, PrintWriter fp) {
@@ -516,8 +527,8 @@ public class Java {
 
 		/**
 		 * Constructor for the S object
-		 *
-		 * @param s 
+		 * <p>
+		 * @param s
 		 */
 		public Line(String s) {
 			this.s = s;
@@ -525,9 +536,9 @@ public class Java {
 
 		/**
 		 * Write a line.
-		 *
-		 * @param indent 
-		 * @param fp 
+		 * <p>
+		 * @param indent
+		 * @param fp
 		 */
 		@Override
 		public void emit(int indent, PrintWriter fp) {
@@ -545,8 +556,8 @@ public class Java {
 
 		/**
 		 * Constructor for the S object
-		 *
-		 * @param s 
+		 * <p>
+		 * @param s
 		 */
 		public LABEL(String s) {
 			this.s = s.trim();
@@ -554,13 +565,104 @@ public class Java {
 
 		/**
 		 * Write a label.
-		 *
-		 * @param indent 
-		 * @param fp 
+		 * <p>
+		 * @param indent
+		 * @param fp
 		 */
 		@Override
 		public void emit(int indent, PrintWriter fp) {
 			fp.println(s + ":");
+		}
+	}
+
+	public static class ANNOTATION extends _StatementBlock implements _Statement, _NoBlock {
+
+		private String anno;
+		private Map<String, String> attrs;
+
+		/**
+		 * Constructor for the S object
+		 * <p>
+		 * @param anno
+		 */
+		public ANNOTATION(String anno) {
+			this.anno = anno.trim();
+			attrs = new TreeMap<>();
+		}
+
+		public ANNOTATION plainAttrs(String name, String... values) {
+			String att = renderAttrs(false, values);
+			attrs.put(name, att);
+			return this;
+		}
+
+		public ANNOTATION stringAttrs(String name, String... values) {
+			String att = renderAttrs(true, values);
+			attrs.put(name, att);
+			return this;
+		}
+
+		public ANNOTATION plain(String... values) {
+			return plainAttrs("", values);
+		}
+
+		public ANNOTATION string(String... values) {
+			return stringAttrs("", values);
+		}
+
+		/**
+		 * Write a label.
+		 * <p>
+		 * @param indent
+		 * @param fp
+		 */
+		@Override
+		public void emit(int indent, PrintWriter fp) {
+			emit(indent, fp, true);
+		}
+
+		public void emit(int indent, PrintWriter fp, boolean newline) {
+			fp.print("@" + anno);
+			if (!attrs.isEmpty()) {
+				fp.print("(");
+				String delim = "";
+				for (Map.Entry<String, String> entry : attrs.entrySet()) {
+					String name = entry.getKey();
+					fp.print(delim);
+					if (name.length() == 0) {
+						fp.print(entry.getValue());
+					} else {
+						fp.print(name + "=" + entry.getValue());
+					}
+					delim = ", ";
+				}
+				fp.print(")");
+			}
+			if (newline) {
+				fp.println();
+				super.emitIndent(indent, fp);
+			}
+		}
+
+		private String renderAttrs(boolean stringMode, String[] attrs) {
+			if (attrs.length == 0) {
+				return stringMode ? "\"\"" : "";
+			} else if (attrs.length == 1) {
+				return stringMode ? "\"" + attrs[0] + "\"" : attrs[0];
+			} else {
+				StringBuilder sb = new StringBuilder();
+				String delim = "{";
+				for (String attr : attrs) {
+					if (stringMode) {
+						sb.append(delim).append("\"").append(attr).append("\"");
+					} else {
+						sb.append(delim).append(attr);
+					}
+					delim = ", ";
+				}
+				sb.append("}");
+				return sb.toString();
+			}
 		}
 	}
 
@@ -592,9 +694,9 @@ public class Java {
 
 		/**
 		 * Construct a comment.
-		 *
+		 * <p>
 		 * @param oneLine is this a one line comment?
-		 * @param s the comment text
+		 * @param s       the comment text
 		 */
 		public C(boolean oneLine, String s) {
 			this.s = s.trim();
@@ -603,7 +705,7 @@ public class Java {
 
 		/**
 		 * Construct a multi-line comment.
-		 *
+		 * <p>
 		 * @param s the comment
 		 */
 		public C(String s) {
@@ -614,7 +716,7 @@ public class Java {
 		 * {@inheritDoc }
 		 *
 		 * @param indent the text indentation
-		 * @param fp the file handle
+		 * @param fp     the file handle
 		 */
 		@Override
 		public void emit(int indent, PrintWriter fp) {
@@ -637,10 +739,10 @@ public class Java {
 
 		/**
 		 * Constructor for the FOR object
-		 *
-		 * @param start 
-		 * @param condition 
-		 * @param iter 
+		 * <p>
+		 * @param start
+		 * @param condition
+		 * @param iter
 		 */
 		public FOR(String start, String condition, String iter) {
 			this.start = start == null ? "" : start.trim();
@@ -650,9 +752,9 @@ public class Java {
 
 		/**
 		 * Write a FOR statement.
-		 *
-		 * @param indent 
-		 * @param fp 
+		 * <p>
+		 * @param indent
+		 * @param fp
 		 */
 		@Override
 		public void emit(int indent, PrintWriter fp) {
@@ -671,9 +773,9 @@ public class Java {
 
 		/**
 		 * Constructor for the IF object
-		 *
+		 * <p>
 		 * @param parent
-		 * @param condition 
+		 * @param condition
 		 */
 		public IF(_StatementBlock parent, String condition) {
 			this.parent = parent;
@@ -697,9 +799,9 @@ public class Java {
 
 		/**
 		 * Write an IF statement
-		 *
-		 * @param indent 
-		 * @param fp 
+		 * <p>
+		 * @param indent
+		 * @param fp
 		 */
 		@Override
 		public void emit(int indent, PrintWriter fp) {
@@ -753,8 +855,8 @@ public class Java {
 
 		/**
 		 * Constructor for the WHILE object
-		 *
-		 * @param condition 
+		 * <p>
+		 * @param condition
 		 */
 		public WHILE(String condition) {
 			if (condition == null) {
@@ -765,9 +867,9 @@ public class Java {
 
 		/**
 		 * Write a WHILE statement.
-		 *
-		 * @param indent 
-		 * @param fp 
+		 * <p>
+		 * @param indent
+		 * @param fp
 		 */
 		@Override
 		public void emit(int indent, PrintWriter fp) {
@@ -785,8 +887,8 @@ public class Java {
 
 		/**
 		 * Constructor for the SWITCH object
-		 *
-		 * @param condition 
+		 * <p>
+		 * @param condition
 		 */
 		public SWITCH(String condition) {
 			if (condition == null) {
@@ -797,9 +899,9 @@ public class Java {
 
 		/**
 		 * Adds a feature to the CASE attribute of the SWITCH object
-		 *
+		 * <p>
 		 * @param cond The feature to be added to the CASE attribute
-		 * @return 
+		 * @return
 		 */
 		public Java.CASE addCASE(String cond) {
 			return (addCASE(false, cond));
@@ -818,8 +920,8 @@ public class Java {
 
 		/**
 		 * Adds a feature to the DEFAULT attribute of the SWITCH object
-		 *
-		 * @return 
+		 * <p>
+		 * @return
 		 */
 		public Java.CASE addDEFAULT() {
 			return (addDEFAULT(false));
@@ -833,9 +935,9 @@ public class Java {
 
 		/**
 		 * Write a CASE statement.
-		 *
-		 * @param indent 
-		 * @param fp 
+		 * <p>
+		 * @param indent
+		 * @param fp
 		 */
 		@Override
 		public void emit(int indent, PrintWriter fp) {
@@ -869,8 +971,8 @@ public class Java {
 
 		/**
 		 * Constructor for the CASE object
-		 *
-		 * @param condition 
+		 * <p>
+		 * @param condition
 		 */
 		public CASE(String condition) {
 			if (condition == null) {
@@ -881,7 +983,7 @@ public class Java {
 
 		/**
 		 * Sets the fallThru attribute of the CASE object
-		 *
+		 * <p>
 		 * @param fallThru The new fallThru value
 		 */
 		public void setFallThru(boolean fallThru) {
@@ -890,7 +992,7 @@ public class Java {
 
 		/**
 		 * Sets the default attribute of the CASE object
-		 *
+		 * <p>
 		 * @param defCase The new default value
 		 */
 		public void setDefault(boolean defCase) {
@@ -899,9 +1001,9 @@ public class Java {
 
 		/**
 		 * Write a CASE statement
-		 *
-		 * @param indent 
-		 * @param fp 
+		 * <p>
+		 * @param indent
+		 * @param fp
 		 */
 		@Override
 		public void emit(int indent, PrintWriter fp) {
@@ -932,8 +1034,8 @@ public class Java {
 
 		/**
 		 * Constructor for the DOWHILE object
-		 *
-		 * @param condition 
+		 * <p>
+		 * @param condition
 		 */
 		public DOWHILE(String condition) {
 			if (condition == null) {
@@ -944,9 +1046,9 @@ public class Java {
 
 		/**
 		 * Write a DO/WHILE statement.
-		 *
-		 * @param indent 
-		 * @param fp 
+		 * <p>
+		 * @param indent
+		 * @param fp
 		 */
 		@Override
 		public void emit(int indent, PrintWriter fp) {
@@ -1053,15 +1155,10 @@ public class Java {
 			}
 
 			/*
-			 // if we have a String we'll need to cook the initializer a little
-			 if((type.indexOf("String") >= 0) && (init != null))
-			 {
-			 if(init.startsWith("\"") || init.equals("null"))
-			 fp.print(" = "+init);
-			 else
-			 fp.print(" = \""+init+"\"");
-			 }
-			 else
+			 * // if we have a String we'll need to cook the initializer a
+			 * little if((type.indexOf("String") >= 0) && (init != null)) {
+			 * if(init.startsWith("\"") || init.equals("null")) fp.print(" =
+			 * "+init); else fp.print(" = \""+init+"\""); } else
 			 */
 			if (init != null) {
 				fp.print(" = " + init);
@@ -1075,6 +1172,7 @@ public class Java {
 	 */
 	public static class METHOD extends _StatementBlock implements _Statement, _NeedBlock {
 
+		private List<ANNOTATION> annos;
 		private List<Arg> args;
 		private List<Throw> thrws;
 		private String modifier;
@@ -1087,10 +1185,10 @@ public class Java {
 
 		/**
 		 * Constructor for the Method object
-		 *
+		 * <p>
 		 * @param modifier
-		 * @param retType 
-		 * @param methodName 
+		 * @param retType
+		 * @param methodName
 		 */
 		public METHOD(String modifier, String retType, String methodName) {
 			if (modifier == null) {
@@ -1109,6 +1207,7 @@ public class Java {
 			this.methodName = methodName.trim();
 			args = new ArrayList<>();
 			thrws = new ArrayList<>();
+			annos = new ArrayList<>();
 		}
 
 		public METHOD(String modifier, String retType, String methodName, boolean isInterface) {
@@ -1126,7 +1225,7 @@ public class Java {
 
 		/**
 		 * Sets the comment attribute of the Method object
-		 *
+		 * <p>
 		 * @param comment The new comment value
 		 */
 		public void setComment(String comment) {
@@ -1142,29 +1241,53 @@ public class Java {
 		}
 
 		/**
-		 * Adds a feature to the Arg attribute of the Method object
-		 *
-		 * @param type The feature to be added to the Arg attribute
-		 * @param name The feature to be added to the Arg attribute
+		 * Add an annotation.
+		 * <p>
+		 * @param anno the annotation name
+		 * @return the annotation
 		 */
-		public void addArg(String type, String name) {
-			args.add(new Arg(type, name));
+		public ANNOTATION addANNOTATION(String anno) {
+			ANNOTATION a = new ANNOTATION(anno);
+			this.annos.add(a);
+			return a;
+		}
+
+		public boolean haveAnnotations() {
+			return annos.size() > 0;
+		}
+
+		public ANNOTATION addOverrideAnnotation() {
+			return addANNOTATION("Override");
 		}
 
 		/**
 		 * Adds a feature to the Arg attribute of the Method object
-		 *
+		 * <p>
 		 * @param type The feature to be added to the Arg attribute
 		 * @param name The feature to be added to the Arg attribute
+		 */
+		public Arg addArg(String type, String name) {
+			Arg arg = new Arg(type, name);
+			args.add(arg);
+			return arg;
+		}
+
+		/**
+		 * Adds a feature to the Arg attribute of the Method object
+		 * <p>
+		 * @param type    The feature to be added to the Arg attribute
+		 * @param name    The feature to be added to the Arg attribute
 		 * @param comment The feature to be added to the Arg attribute
 		 */
-		public void addArg(String type, String name, String comment) {
-			args.add(new Arg(type, name, comment));
+		public Arg addArg(String type, String name, String comment) {
+			Arg arg = new Arg(type, name, comment);
+			args.add(arg);
+			return arg;
 		}
 
 		/**
 		 * Adds a feature to the THROWS attribute of the Method object
-		 *
+		 * <p>
 		 * @param name The feature to be added to the THROWS attribute
 		 */
 		public void addTHROWS(String name) {
@@ -1177,9 +1300,9 @@ public class Java {
 
 		/**
 		 * Write a method.
-		 *
-		 * @param indent 
-		 * @param fp 
+		 * <p>
+		 * @param indent
+		 * @param fp
 		 */
 		@Override
 		@SuppressWarnings("empty-statement")
@@ -1220,6 +1343,13 @@ public class Java {
 
 			Java.emitFinishCommentIndentN(fp, indent);
 			emitIndent(indent, fp);
+
+			// print the annotations
+			if (haveAnnotations()) {
+				for (ANNOTATION anno : annos) {
+					anno.emit(indent, fp);
+				}
+			}
 
 			if (isCLinit()) {
 				fp.print("static ");
@@ -1268,8 +1398,8 @@ public class Java {
 
 		/**
 		 * Constructor for the Arg object
-		 *
-		 * @param name 
+		 * <p>
+		 * @param name
 		 */
 		public Throw(String name) {
 			if (name == null) {
@@ -1280,9 +1410,9 @@ public class Java {
 
 		/**
 		 * Constructor for the Arg object
-		 *
-		 * @param name 
-		 * @param comment 
+		 * <p>
+		 * @param name
+		 * @param comment
 		 */
 		public Throw(String name, String comment) {
 			this(name);
@@ -1291,8 +1421,8 @@ public class Java {
 
 		/**
 		 * Write a THROW.
-		 *
-		 * @param fp 
+		 * <p>
+		 * @param fp
 		 */
 		public void emit(PrintWriter fp) {
 			fp.print(name);
@@ -1300,9 +1430,9 @@ public class Java {
 
 		/**
 		 * Write a comment.
-		 *
-		 * @param indent 
-		 * @param fp 
+		 * <p>
+		 * @param indent
+		 * @param fp
 		 */
 		public void emitComment(int indent, PrintWriter fp) {
 			if (comment == null) {
@@ -1314,15 +1444,16 @@ public class Java {
 
 	public static class Arg {
 
+		private ANNOTATION annotation;
 		private String type;
 		private String name;
 		private String comment;
 
 		/**
 		 * Constructor for the Arg object
-		 *
-		 * @param type 
-		 * @param name 
+		 * <p>
+		 * @param type
+		 * @param name
 		 */
 		public Arg(String type, String name) {
 			if (type == null) {
@@ -1337,30 +1468,39 @@ public class Java {
 
 		/**
 		 * Constructor for the Arg object
-		 *
-		 * @param type 
-		 * @param name 
-		 * @param comment 
+		 * <p>
+		 * @param type
+		 * @param name
+		 * @param comment
 		 */
 		public Arg(String type, String name, String comment) {
 			this(type, name);
 			this.comment = comment.trim();
 		}
 
+		public ANNOTATION addANNOTATION(String anno) {
+			annotation = new ANNOTATION(anno);
+			return annotation;
+		}
+
 		/**
 		 * Write an argument.
-		 *
-		 * @param fp 
+		 * <p>
+		 * @param fp
 		 */
 		public void emit(PrintWriter fp) {
+			if (annotation != null) {
+				annotation.emit(0, fp, false);
+				fp.print(" ");
+			}
 			fp.print(type + " " + name);
 		}
 
 		/**
 		 * Write an arg comment.
-		 *
-		 * @param indent 
-		 * @param fp 
+		 * <p>
+		 * @param indent
+		 * @param fp
 		 */
 		public void emitComment(int indent, PrintWriter fp) {
 			if (comment == null) {
@@ -1445,19 +1585,19 @@ public class Java {
 		/**
 		 * Adds getters and setters for a given property with the given data
 		 * type and default value;
-		 *
+		 * <p>
 		 * @param	name	attribute name
 		 * @param	type	attribute data type
-		 * @param	def	attribute default value
-		 *
+		 * @param	def	 attribute default value
+		 * <p>
 		 */
 		/**
 		 * Adds getters and setters for a given property with the given data
 		 * type and default value;
-		 *
-		 * @param name attribute name
-		 * @param type attribute data type
-		 * @param def attribute default value
+		 * <p>
+		 * @param name     attribute name
+		 * @param type     attribute data type
+		 * @param def      attribute default value
 		 * @param readOnly
 		 */
 		public void addProperty(String type, String name, String def, boolean readOnly) {
@@ -1478,10 +1618,10 @@ public class Java {
 
 		/**
 		 * Add a general property to the class.
-		 *
+		 * <p>
 		 * @param type the data type
 		 * @param name the property name
-		 * @param def the default value
+		 * @param def  the default value
 		 */
 		public void addProperty(String type, String name, String def) {
 			addProperty(name, type, def, false);
@@ -1489,10 +1629,10 @@ public class Java {
 
 		/**
 		 * Add a readonly property to the class.
-		 *
+		 * <p>
 		 * @param type the data type
 		 * @param name the property name
-		 * @param def the default value
+		 * @param def  the default value
 		 */
 		public void addReadOnlyProperty(String type, String name, String def) {
 			addProperty(name, type, def, true);
@@ -1511,7 +1651,7 @@ public class Java {
 
 		/**
 		 * Create a getter function for an attribute.
-		 *
+		 * <p>
 		 * @param attr the attribute
 		 * @return the getter
 		 */
@@ -1525,7 +1665,7 @@ public class Java {
 
 		/**
 		 * Create a setter function for an attribute.
-		 *
+		 * <p>
 		 * @param attr the attribute
 		 * @return the setter
 		 */
@@ -1541,6 +1681,8 @@ public class Java {
 
 	public static class _ClassBody extends _ClassBlock implements _Statement, _NeedBlock {
 
+		private String copyright = COPYRIGHT;
+		private List<ANNOTATION> annos;
 		protected List<String> impls;
 		private final String type;
 		private final String name;
@@ -1559,6 +1701,7 @@ public class Java {
 			this.impls = new ArrayList<>();
 			this.imports = new TreeSet<>();
 			this.topLevel = true;
+			this.annos = new ArrayList<>();
 		}
 
 		public String getName() {
@@ -1571,6 +1714,10 @@ public class Java {
 			}
 		}
 
+		public void setCopyright(String copyright) {
+			this.copyright = copyright;
+		}
+
 		public void setTopLevel(boolean topLevel) {
 			this.topLevel = topLevel;
 		}
@@ -1581,13 +1728,25 @@ public class Java {
 			}
 		}
 
-		public void addIMPORT(String[] names) {
+		public void addIMPORT(String... names) {
 			if (names == null) {
 				return;
 			}
 			for (String name1 : names) {
 				addIMPORT(name1);
 			}
+		}
+
+		/**
+		 * Add an annotation.
+		 * <p>
+		 * @param anno the annotation name
+		 * @return the annotation
+		 */
+		public ANNOTATION addANNOTATION(String anno) {
+			ANNOTATION a = new ANNOTATION(anno);
+			this.annos.add(a);
+			return a;
 		}
 
 		public void setPackage(String packageName) {
@@ -1614,7 +1773,7 @@ public class Java {
 		public void emit(int indent, PrintWriter fp) {
 			String delim;
 			if (topLevel) {
-				Java.emitCommentIndentN(fp, COPYRIGHT, 0, false);
+				Java.emitCommentIndentN(fp, copyright, 0, false);
 				fp.println();
 				if (packageName != null) {
 					fp.println("package " + packageName + ";");
@@ -1643,6 +1802,11 @@ public class Java {
 
 			Java.emitFinishCommentIndentN(fp, indent);
 			emitIndent(indent, fp);
+
+			for (ANNOTATION anno : annos) {
+				anno.emit(indent, fp);
+			}
+
 			if (this instanceof _IsInterface) {
 				fp.print(type + " interface " + name);
 			} else {
