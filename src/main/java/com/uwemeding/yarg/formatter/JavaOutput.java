@@ -3,11 +3,10 @@
  */
 package com.uwemeding.yarg.formatter;
 
-import com.uwemeding.yarg.OutputFormatContext;
+import com.uwemeding.yarg.StringUtils;
 import com.uwemeding.yarg.YargException;
 import com.uwemeding.yarg.bindings.Application;
 import com.uwemeding.yarg.bindings.Method;
-import com.uwemeding.yarg.bindings.Request;
 import com.uwemeding.yarg.bindings.RequestParameter;
 import com.uwemeding.yarg.bindings.RequestTemplate;
 import com.uwemeding.yarg.bindings.Response;
@@ -23,7 +22,7 @@ import java.util.TreeSet;
  * <p>
  * @author uwe
  */
-public class JavaOutput implements OutputFormatContext {
+public class JavaOutput extends OutputContextBase {
 
 	@Override
 	public void create(File outputDir, Application app) throws YargException {
@@ -91,10 +90,16 @@ public class JavaOutput implements OutputFormatContext {
 		proxy.addANNOTATION("Path").string(restCalls.getPath());
 		proxy.addIMPORT("javax.ws.rs.Path", "java.io.Serializable");
 
+		if (restCalls.getDesc() != null) {
+			proxy.setComment(StringUtils.collapseWhitespace(restCalls.getDesc()));
+		}
+
 		for (RestCall call : restCalls.getRestCall()) {
 			for (Method m : call.getMethod()) {
-				Java.METHOD method = proxy.addMETHOD("Response", call.getName());
-				method.setComment(m.getDesc());
+				Java.METHOD method = proxy.addMETHOD("Response", m.getName());
+				if (m.getDesc() != null) {
+					method.setComment(m.getDesc());
+				}
 				method.addANNOTATION(callType(m));
 				method.addANNOTATION("Path").string(call.getPath());
 				method.setReturnComment("a REST response");
@@ -120,11 +125,11 @@ public class JavaOutput implements OutputFormatContext {
 					proxy.addIMPORT(argType);
 
 				} else if (m.getRequestParameters() != null) {
-						for (RequestParameter para : m.getRequestParameters().getRequestParameter()) {
+					for (RequestParameter para : m.getRequestParameters().getRequestParameter()) {
 						Java.Arg arg = method.addArg(shortName(para.getType()), para.getName(), para.getvalue());
 						arg.addANNOTATION("DefaultValue").string(para.getDefault());
 						arg.addANNOTATION("QueryParam").string(para.getName());
-								;
+						;
 						if (para.getType().contains(".")) {
 							proxy.addIMPORT(para.getType());
 						}
@@ -148,48 +153,4 @@ public class JavaOutput implements OutputFormatContext {
 		Java.createSource(proxy);
 	}
 
-	private String callType(Method m) {
-		switch (m.getType()) {
-			default:
-				throw new YargException(m.getType() + ": unknown method call type");
-			case "get":
-				return "GET";
-			case "put":
-				return "PUT";
-			case "post":
-				return "POST";
-			case "delete":
-				return "DELETE";
-		}
-	}
-
-	private String contentType(Request req) {
-		return contentType(req.getContentType());
-	}
-
-	private String contentType(Response res) {
-		return contentType(res.getContentType());
-	}
-
-	private String contentType(String string) {
-		switch (string) {
-			default:
-				throw new YargException(string + ": unknown content type");
-			case "json":
-				return "application/json";
-			case "xml":
-				return "application/xml";
-			case "text":
-				return "text/plain";
-		}
-	}
-
-	private String shortName(String fullName) {
-		int lastIndex = fullName.lastIndexOf('.');
-		if (lastIndex >= 0) {
-			return fullName.substring(lastIndex + 1);
-		} else {
-			return fullName;
-		}
-	}
 }

@@ -4,6 +4,11 @@
 package com.uwemeding.yarg;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
@@ -18,7 +23,7 @@ public class StringUtils {
 	/**
 	 * Replaces all whitespaces from a string with space, removes all redundant
 	 * whitespaces.
-	 *
+	 * <p>
 	 * @param string string to collapse
 	 * @return the collapsed string
 	 */
@@ -46,8 +51,67 @@ public class StringUtils {
 	}
 
 	/**
+	 * Remove the leading spaces from a chunk of text.
+	 * <p>
+	 * @param text the text
+	 * @return the space-less text
+	 */
+	public static String removeLeadingSpaces(String text) {
+		try (LineNumberReader fp = new LineNumberReader(new StringReader(text))) {
+
+			fp.mark(text.length() + 1);
+
+			// count spaces
+			int nspaces = text.length();
+			String line;
+			while ((line = fp.readLine()) != null) {
+				char[] cs = line.toCharArray();
+				for (int i = 0; i < cs.length; i++) {
+					if (!Character.isWhitespace(cs[i])) {
+						nspaces = Math.min(nspaces, i);
+					}
+				}
+			}
+
+			fp.reset();
+
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			while ((line = fp.readLine()) != null) {
+				if (line.length() > nspaces) {
+					pw.println(line.substring(nspaces));
+				}
+			}
+			return sw.toString();
+		} catch (IOException e) {
+			throw new YargException(e);
+		}
+	}
+
+	/**
+	 * Extract a short description from the text. Usually this is the first
+	 * sentence.
+	 * <p>
+	 * @param text the incoming text
+	 * @return the first sentence
+	 */
+	public static String firstSentence(String text) {
+		char[] cs = collapseWhitespace(text).toCharArray();
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < cs.length; i++) {
+			if (i > 0 && cs[i] == '.') {
+				sb.append(".");
+				break;
+			} else {
+				sb.append(cs[i]);
+			}
+		}
+		return sb.toString();
+	}
+
+	/**
 	 * Encode a text for db usage etc.
-	 *
+	 * <p>
 	 * @param text the text to be encoded
 	 * @return the encoded text
 	 */
@@ -64,7 +128,7 @@ public class StringUtils {
 
 	/**
 	 * Decode a string for db usage etc.
-	 *
+	 * <p>
 	 * @param text is hte text
 	 * @return the decoded text
 	 */
@@ -81,7 +145,7 @@ public class StringUtils {
 
 	/**
 	 * Process the escape characters in a string
-	 *
+	 * <p>
 	 * @param string the incoming stinrg
 	 * @return the resulting string
 	 */
@@ -127,7 +191,7 @@ public class StringUtils {
 
 	/**
 	 * Convert a path into a Java (dotted) path.
-	 *
+	 * <p>
 	 * @param path the path
 	 * @return the java path
 	 */

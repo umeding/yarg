@@ -4,12 +4,14 @@
 	<package path="com.uwemeding.rest.test" />
 
 	<rest.calls path="rest" name="RestTest">
-		
-		<rest.call path="test/{id}" name="testCall">
+		<desc>Some test REST calls.</desc>
 
-			<method type="post">
+		<rest.call path="test/{id}" >
+
+			<method type="post" name="testPostCall">
 				<desc>
-					Some test call.
+					Some test call. This is a longer description of the call.
+					More text on another line.
 				</desc>
 
 				<request.templates>
@@ -26,8 +28,27 @@
 					<response code="200" content.type="json">{"status":"OK"}</response>
 					<response code="400">On Error</response>
 				</responses>
+
+				<examples>
+					<example content.type="bash" title="Some bash example">
+						$ curl https://some.site.com/app/rest/test/123
+						{"status":"ok"}
+					</example>
+					<example content.type="java" title="Some Java example">
+						public static void main(String ... av) {
+						  System.out.println("laber lall");
+						}
+					</example>
+				</examples>
 			</method>
 
+			<method type="get" name="testGetCall">
+				<desc>Some GET call</desc>
+				<responses>
+					<response code="200" content.type="json">{"status":"OK"}</response>
+					<response code="400">On Error</response>
+				</responses>
+			</method>
 		</rest.call>
 
 		<rest.call path="parameter/call" name="parameterCall">
@@ -42,5 +63,23 @@
 		</rest.call>
 		
 	</rest.calls>
+
+	<rest.calls name="MoreRestCalls" path="moreRest">
+		<desc>
+			More rest call description. Text text.
+		</desc>
+		<rest.call path="parameter/call" >
+			<method type="get" name="parameterCall">
+				<desc>Get a parameter</desc>
+
+				<request.parameters>
+					<request.parameter name="p1" type="String" default="xyzzy">P1 parameter</request.parameter>
+					<request.parameter name="p2" type="java.lang.Double" default="1.2">P2 parameter</request.parameter>
+				</request.parameters>
+			</method>
+		</rest.call>
+
+	</rest.calls>
+
 </application>
 

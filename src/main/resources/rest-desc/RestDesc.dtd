@@ -13,6 +13,10 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
 
 <!ENTITY % method                               "method" >
 <!ENTITY % desc                                 "desc" >
+
+<!ENTITY % examples                             "examples" >
+<!ENTITY % example                              "example" >
+
 <!ENTITY % request.templates            		"request.templates" >
 <!ENTITY % request.template                     "request.template" >
 <!ENTITY % request.parameters           		"request.parameters" >
@@ -33,7 +37,7 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
 
 <!ENTITY % request                              "request" >
 
-<!ENTITY % content.type                         "content.type (json | xml | csv | text ) 'text'">
+<!ENTITY % content.type                         "content.type (json | xml | csv | bash | text ) 'text'">
 
 <!-- ...................................................................... -->
 <!-- Application .......................................................... -->
@@ -48,18 +52,19 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
 <!ATTLIST %package;
           path CDATA #REQUIRED >
 
-<!ELEMENT %rest.calls;                          ((%rest.call;)*) >
+<!ELEMENT %rest.calls;                          (%desc;,(%rest.call;)*) >
 <!ATTLIST %rest.calls;
           %path.attr;
 >
 
 <!ELEMENT %rest.call;                           ((%method;)*) >
 <!ATTLIST %rest.call;
-          %path.attr;
+          path    CDATA #REQUIRED
 >
 
 <!-- Description -->
 <!ELEMENT %desc;                                (#PCDATA) >
+
 <!-- Request templates -->
 <!ELEMENT %request.templates;                   ((%request.template;)*) >
 <!ELEMENT %request.template;                    (#PCDATA) >
@@ -89,8 +94,15 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
           code    CDATA #REQUIRED 
           %content.type;
 >
+<!-- Examples -->
+<!ELEMENT %examples;                            ((%example;)*) >
+<!ELEMENT %example;                             (#PCDATA) >
+<!ATTLIST %example;
+          title   CDATA #REQUIRED
+          %content.type; >
 
-<!ELEMENT %method;                    (%desc;,%request.templates;,%request;,%request.parameters;,%responses;) >
+<!ELEMENT %method;                    (%desc;,%request.templates;,%request;,%request.parameters;,%responses;,%examples;) >
 <!ATTLIST %method;
+          name    CDATA #REQUIRED
           %call.types;
 >
