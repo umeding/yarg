@@ -61,8 +61,8 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
 <!-- Description -->
 <!ELEMENT %desc;                                (#PCDATA) >
 <!-- Request templates -->
-<!ELEMENT %request.templates;           ((%request.templates;)*) >
-<!ELEMENT %request.template;            (#PCDATA) >
+<!ELEMENT %request.templates;                   ((%request.template;)*) >
+<!ELEMENT %request.template;                    (#PCDATA) >
 <!ATTLIST %request.template;
           name    CDATA #REQUIRED
           type    CDATA #REQUIRED >
@@ -73,7 +73,8 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
 <!ELEMENT %request.parameter;           (#PCDATA) >
 <!ATTLIST %request.parameter;
           name    CDATA #REQUIRED
-          type    CDATA #REQUIRED >
+          type    CDATA #REQUIRED 
+          default CDATA #REQUIRED >
 <!-- Request data -->
 <!ELEMENT %request;                                     (#PCDATA) >
 <!ATTLIST %request;

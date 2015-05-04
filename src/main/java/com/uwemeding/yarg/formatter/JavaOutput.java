@@ -8,12 +8,13 @@ import com.uwemeding.yarg.YargException;
 import com.uwemeding.yarg.bindings.Application;
 import com.uwemeding.yarg.bindings.Method;
 import com.uwemeding.yarg.bindings.Request;
+import com.uwemeding.yarg.bindings.RequestParameter;
+import com.uwemeding.yarg.bindings.RequestTemplate;
 import com.uwemeding.yarg.bindings.Response;
 import com.uwemeding.yarg.bindings.RestCall;
 import com.uwemeding.yarg.bindings.RestCalls;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -97,17 +98,37 @@ public class JavaOutput implements OutputFormatContext {
 				method.addANNOTATION(callType(m));
 				method.addANNOTATION("Path").string(call.getPath());
 				method.setReturnComment("a REST response");
+				proxy.addIMPORT("javax.ws.rs.core.Response");
 
+				if (m.getRequestTemplates() != null) {
+					for (RequestTemplate temp : m.getRequestTemplates().getRequestTemplate()) {
+						method.addArg(shortName(temp.getType()), temp.getName(), temp.getvalue())
+								.addANNOTATION("PathParam").string(temp.getName());
+						if (temp.getType().contains(".")) {
+							proxy.addIMPORT(temp.getType());
+						}
+					}
+				}
 				if (m.getRequest() != null) {
 					String argName = m.getRequest().getName();
 					String argType = m.getRequest().getType();
 					String shortArgType = shortName(argType);
 					method.addANNOTATION("Consumes").string(contentType(m.getRequest()));
+					proxy.addIMPORT("javax.ws.rs.Consumes");
 
 					method.addArg(shortArgType, argName, shortArgType);
 					proxy.addIMPORT(argType);
 
 				} else if (m.getRequestParameters() != null) {
+						for (RequestParameter para : m.getRequestParameters().getRequestParameter()) {
+						Java.Arg arg = method.addArg(shortName(para.getType()), para.getName(), para.getvalue());
+						arg.addANNOTATION("DefaultValue").string(para.getDefault());
+						arg.addANNOTATION("QueryParam").string(para.getName());
+								;
+						if (para.getType().contains(".")) {
+							proxy.addIMPORT(para.getType());
+						}
+					}
 				}
 
 				// handle the responses
@@ -118,6 +139,7 @@ public class JavaOutput implements OutputFormatContext {
 					}
 
 					method.addANNOTATION("Produces").string(respTypes.toArray(new String[0]));
+					proxy.addIMPORT("javax.ws.rs.Produces");
 				}
 			}
 		}
@@ -157,6 +179,8 @@ public class JavaOutput implements OutputFormatContext {
 				return "application/json";
 			case "xml":
 				return "application/xml";
+			case "text":
+				return "text/plain";
 		}
 	}
 

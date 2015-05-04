@@ -226,7 +226,7 @@ public class Java {
 		 * Write the statement to the output stream.
 		 * <p>
 		 * @param indent the text indent
-		 * @param fp     the output stream
+		 * @param fp the output stream
 		 */
 		void emit(int indent, PrintWriter fp);
 	}
@@ -417,9 +417,9 @@ public class Java {
 		/**
 		 * Adds a feature to the FOR attribute of the _StatementBlock object
 		 * <p>
-		 * @param start     The feature to be added to the FOR attribute
+		 * @param start The feature to be added to the FOR attribute
 		 * @param condition The feature to be added to the FOR attribute
-		 * @param iter      The feature to be added to the FOR attribute
+		 * @param iter The feature to be added to the FOR attribute
 		 * @return
 		 */
 		public Java.FOR addFOR(String start, String condition, String iter) {
@@ -696,7 +696,7 @@ public class Java {
 		 * Construct a comment.
 		 * <p>
 		 * @param oneLine is this a one line comment?
-		 * @param s       the comment text
+		 * @param s the comment text
 		 */
 		public C(boolean oneLine, String s) {
 			this.s = s.trim();
@@ -716,7 +716,7 @@ public class Java {
 		 * {@inheritDoc }
 		 *
 		 * @param indent the text indentation
-		 * @param fp     the file handle
+		 * @param fp the file handle
 		 */
 		@Override
 		public void emit(int indent, PrintWriter fp) {
@@ -1275,8 +1275,8 @@ public class Java {
 		/**
 		 * Adds a feature to the Arg attribute of the Method object
 		 * <p>
-		 * @param type    The feature to be added to the Arg attribute
-		 * @param name    The feature to be added to the Arg attribute
+		 * @param type The feature to be added to the Arg attribute
+		 * @param name The feature to be added to the Arg attribute
 		 * @param comment The feature to be added to the Arg attribute
 		 */
 		public Arg addArg(String type, String name, String comment) {
@@ -1354,14 +1354,31 @@ public class Java {
 			if (isCLinit()) {
 				fp.print("static ");
 			} else {
-				fp.print(modifier + retType + " " + methodName + "(");
-				delim = "";
-				for (Arg arg : args) {
-					fp.print(delim);
-					arg.emit(fp);
-					delim = ", ";
+//				fp.print(modifier + retType + " " + methodName + "(");
+//				delim = "";
+//				for (Arg arg : args) {
+//					fp.print(delim);
+//					arg.emit(fp);
+//					delim = ", ";
+//				}
+//				fp.print(")");
+
+				// break the arguments across individual lines
+				if (args.isEmpty()) {
+					fp.println(modifier + retType + " " + methodName + "()");
+				} else {
+					fp.println(modifier + retType + " " + methodName + "(");
+					boolean first = true;
+					for (Arg arg : args) {
+						if (!first) {
+							fp.println(",");
+						}
+						emitIndent(indent + 4, fp);
+						arg.emit(fp);
+						first = false;
+					}
+					fp.print(")");
 				}
-				fp.print(")");
 				if (thrws.size() > 0) {
 					fp.println();
 					emitIndent(indent + 4, fp);
@@ -1444,7 +1461,7 @@ public class Java {
 
 	public static class Arg {
 
-		private ANNOTATION annotation;
+		private List<ANNOTATION> annotation;
 		private String type;
 		private String name;
 		private String comment;
@@ -1464,6 +1481,7 @@ public class Java {
 				throw new NullPointerException("Argument name cannot be null");
 			}
 			this.name = name.trim();
+			this.annotation = new ArrayList<>();
 		}
 
 		/**
@@ -1479,8 +1497,9 @@ public class Java {
 		}
 
 		public ANNOTATION addANNOTATION(String anno) {
-			annotation = new ANNOTATION(anno);
-			return annotation;
+			ANNOTATION a = new ANNOTATION(anno);
+			annotation.add(a);
+			return a;
 		}
 
 		/**
@@ -1489,8 +1508,8 @@ public class Java {
 		 * @param fp
 		 */
 		public void emit(PrintWriter fp) {
-			if (annotation != null) {
-				annotation.emit(0, fp, false);
+			for (ANNOTATION a : annotation) {
+				a.emit(0, fp, false);
 				fp.print(" ");
 			}
 			fp.print(type + " " + name);
@@ -1588,16 +1607,16 @@ public class Java {
 		 * <p>
 		 * @param	name	attribute name
 		 * @param	type	attribute data type
-		 * @param	def	 attribute default value
+		 * @param	def	attribute default value
 		 * <p>
 		 */
 		/**
 		 * Adds getters and setters for a given property with the given data
 		 * type and default value;
 		 * <p>
-		 * @param name     attribute name
-		 * @param type     attribute data type
-		 * @param def      attribute default value
+		 * @param name attribute name
+		 * @param type attribute data type
+		 * @param def attribute default value
 		 * @param readOnly
 		 */
 		public void addProperty(String type, String name, String def, boolean readOnly) {
@@ -1621,7 +1640,7 @@ public class Java {
 		 * <p>
 		 * @param type the data type
 		 * @param name the property name
-		 * @param def  the default value
+		 * @param def the default value
 		 */
 		public void addProperty(String type, String name, String def) {
 			addProperty(name, type, def, false);
@@ -1632,7 +1651,7 @@ public class Java {
 		 * <p>
 		 * @param type the data type
 		 * @param name the property name
-		 * @param def  the default value
+		 * @param def the default value
 		 */
 		public void addReadOnlyProperty(String type, String name, String def) {
 			addProperty(name, type, def, true);

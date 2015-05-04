@@ -5,12 +5,17 @@
 
 	<rest.calls path="rest" name="RestTest">
 		
-		<rest.call path="test" name="testCall">
+		<rest.call path="test/{id}" name="testCall">
 
 			<method type="post">
 				<desc>
 					Some test call.
 				</desc>
+
+				<request.templates>
+					<request.template name="id" type="String">Identifier</request.template>
+				</request.templates>
+
 				<request name="key" type="com.uwemeding.rest.KeyDTO" content.type="json">
 					{
 					"key": "SomeKey",
@@ -23,6 +28,17 @@
 				</responses>
 			</method>
 
+		</rest.call>
+
+		<rest.call path="parameter/call" name="parameterCall">
+			<method type="get">
+				<desc>Get a parameter</desc>
+
+				<request.parameters>
+					<request.parameter name="p1" type="String" default="xyzzy">P1 parameter</request.parameter>
+					<request.parameter name="p2" type="java.lang.Double" default="1.2">P2 parameter</request.parameter>
+				</request.parameters>
+			</method>
 		</rest.call>
 		
 	</rest.calls>
