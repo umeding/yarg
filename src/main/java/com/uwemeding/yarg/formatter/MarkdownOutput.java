@@ -68,7 +68,12 @@ public class MarkdownOutput extends OutputContextBase {
 					String mdRestCall = restCalls.getName() + "-" + ncall + ".md";
 					ncall++;
 
-					for (Method m : restCall.getMethod()) {
+					for (String type : METHOD_SEQUENCE) {
+						Method m = findMethodByType(restCall.getMethod(), type);
+						if (m == null) {
+							continue;
+						}
+
 						String mdRestCallMethod = restCalls.getName() + "/" + mdRestCall + jumpPoint(m);
 						fp.println("__" + callType(m) + "__ | [`" + restCallPath + "`](" + mdRestCallMethod + ") | " + StringUtils.firstSentence(m.getDesc()));
 					}
@@ -114,7 +119,7 @@ public class MarkdownOutput extends OutputContextBase {
 							fullRestCallPath = sb.toString();
 						}
 
-						fp.println("# "+declareAnchor(m)+"__" + callType(m) + "__ `" + fullRestCallPath + "`");
+						fp.println("# " + declareAnchor(m) + "__" + callType(m) + "__ `" + fullRestCallPath + "`");
 						fp.println(StringUtils.collapseWhitespace(m.getDesc()));
 
 						// print the template parameters
