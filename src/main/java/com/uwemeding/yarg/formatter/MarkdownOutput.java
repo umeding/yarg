@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.StringReader;
+import java.util.List;
 
 /**
  * Markdown output.
@@ -26,6 +27,8 @@ import java.io.StringReader;
  * @author uwe
  */
 public class MarkdownOutput extends OutputContextBase {
+
+	private final static String[] METHOD_SEQUENCE = new String[]{"get", "post", "put", "delete"};
 
 	@Override
 	public void create(File outputDir, Application app) throws YargException {
@@ -40,11 +43,15 @@ public class MarkdownOutput extends OutputContextBase {
 
 	private void createIndex(File outputDir, File path, Application app) {
 
-		for (RestCalls restCalls : app.getRestCalls()) {
-			File restCallsDir = new File(outputDir, restCalls.getName());
-			restCallsDir.mkdirs();
+		File indexPath = new File(outputDir, app.getPath());
+		indexPath.mkdirs();
 
-			try (PrintWriter fp = new PrintWriter(new FileWriter(new File(restCallsDir, "index.md")))) {
+		try (PrintWriter fp = new PrintWriter(new FileWriter(new File(indexPath, "index.md")))) {
+
+			for (RestCalls restCalls : app.getRestCalls()) {
+				File restCallsDir = new File(outputDir, app.getPath() + "/" + restCalls.getName());
+				restCallsDir.mkdirs();
+
 				fp.println("# " + restCalls.getName());
 				fp.println();
 				fp.println(StringUtils.collapseWhitespace(restCalls.getDesc()));
@@ -54,24 +61,29 @@ public class MarkdownOutput extends OutputContextBase {
 
 				fp.println("Type | Resource | Description");
 				fp.println("--- | --- | ---:");
+				int ncall = 1;
 				for (RestCall restCall : restCalls.getRestCall()) {
 
 					File restCallPath = new File(restCallsPath, restCall.getPath());
+					String mdRestCall = restCalls.getName() + "-" + ncall + ".md";
+					ncall++;
 
 					for (Method m : restCall.getMethod()) {
-						fp.println("__" + callType(m) + "__ | [`" + restCallPath + "`](http://www.github.com) | " + StringUtils.firstSentence(m.getDesc()));
+						String mdRestCallMethod = restCalls.getName() + "/" + mdRestCall + jumpPoint(m);
+						fp.println("__" + callType(m) + "__ | [`" + restCallPath + "`](" + mdRestCallMethod + ") | " + StringUtils.firstSentence(m.getDesc()));
 					}
 				}
-			} catch (IOException ex) {
-				throw new YargException(ex);
+				fp.println();
 			}
+		} catch (IOException ex) {
+			throw new YargException(ex);
 		}
 	}
 
 	private void createRestCalls(File outputDir, File path, Application app) {
 
 		for (RestCalls restCalls : app.getRestCalls()) {
-			File restCallsDir = new File(outputDir, restCalls.getName());
+			File restCallsDir = new File(outputDir, app.getPath() + "/" + restCalls.getName());
 			restCallsDir.mkdirs();
 
 			File restCallsPath = new File(path, restCalls.getPath());
@@ -83,7 +95,11 @@ public class MarkdownOutput extends OutputContextBase {
 
 					File restCallPath = new File(restCallsPath, restCall.getPath());
 
-					for (Method m : restCall.getMethod()) {
+					for (String type : METHOD_SEQUENCE) {
+						Method m = findMethodByType(restCall.getMethod(), type);
+						if (m == null) {
+							continue;
+						}
 
 						// extend the path with the query parameters
 						String fullRestCallPath = restCallPath.toString();
@@ -98,7 +114,7 @@ public class MarkdownOutput extends OutputContextBase {
 							fullRestCallPath = sb.toString();
 						}
 
-						fp.println("# __" + callType(m) + "__ `" + fullRestCallPath + "`");
+						fp.println("# "+declareAnchor(m)+"__" + callType(m) + "__ `" + fullRestCallPath + "`");
 						fp.println(StringUtils.collapseWhitespace(m.getDesc()));
 
 						// print the template parameters
@@ -173,12 +189,31 @@ public class MarkdownOutput extends OutputContextBase {
 								fp.println();
 							}
 						}
+
+						fp.println();
 					}
 				} catch (IOException ex) {
 					throw new YargException(ex);
 				}
 			}
 		}
+	}
+
+	private Method findMethodByType(List<Method> methods, String type) {
+		for (Method m : methods) {
+			if (type.equals(m.getType())) {
+				return m;
+			}
+		}
+		return null;
+	}
+
+	private String declareAnchor(Method m) {
+		return "<a name=\"" + m.getType() + "\"></a>";
+	}
+
+	private String jumpPoint(Method m) {
+		return "#" + m.getType();
 	}
 
 }
