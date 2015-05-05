@@ -113,6 +113,9 @@ public class JavaOutput extends OutputContextBase {
 					proxy.addIMPORT("javax.annotation.security.PermitAll");
 				} else {
 					String[] roles = m.getRoles().getPermit().split(",");
+					for (int i = 0; i < roles.length; i++) {
+						roles[i] = roles[i].trim().toUpperCase();
+					}
 					if (roles.length > 0) {
 						method.addANNOTATION("RolesAllowed").string(roles);
 						proxy.addIMPORT("javax.annotation.security.RolesAllowed");
