@@ -22,6 +22,13 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
 <!ENTITY % request.parameters           		"request.parameters" >
 <!ENTITY % request.parameter            		"request.parameter" >
 
+<!ENTITY % contexts                             "contexts" >
+<!ENTITY % context                              "context" >
+<!ENTITY % context.attr                         "
+                                                  type CDATA #REQUIRED
+                                                  name CDATA #REQUIRED
+" >
+
 <!-- Path desc:
     path is the REST path
     name is the Java name
@@ -65,6 +72,12 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
 <!-- Description -->
 <!ELEMENT %desc;                                (#PCDATA) >
 
+<!-- Call contexts -->
+<!ELEMENT %contexts;                            ((%context;)*) >
+<!ELEMENT %context;                             (#PCDATA) >
+<!ATTLIST %context;
+          %context.attr; >
+
 <!-- Request templates -->
 <!ELEMENT %request.templates;                   ((%request.template;)*) >
 <!ELEMENT %request.template;                    (#PCDATA) >
@@ -101,7 +114,7 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
           title   CDATA #REQUIRED
           %content.type; >
 
-<!ELEMENT %method;                    (%desc;,%request.templates;,%request;,%request.parameters;,%responses;,%examples;) >
+<!ELEMENT %method;                    (%desc;,%contexts;,%request.templates;,%request;,%request.parameters;,%responses;,%examples;) >
 <!ATTLIST %method;
           name    CDATA #REQUIRED
           %call.types;

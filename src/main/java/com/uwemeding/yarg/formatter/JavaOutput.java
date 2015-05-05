@@ -6,6 +6,7 @@ package com.uwemeding.yarg.formatter;
 import com.uwemeding.yarg.StringUtils;
 import com.uwemeding.yarg.YargException;
 import com.uwemeding.yarg.bindings.Application;
+import com.uwemeding.yarg.bindings.Context;
 import com.uwemeding.yarg.bindings.Method;
 import com.uwemeding.yarg.bindings.RequestParameter;
 import com.uwemeding.yarg.bindings.RequestTemplate;
@@ -129,9 +130,19 @@ public class JavaOutput extends OutputContextBase {
 						Java.Arg arg = method.addArg(shortName(para.getType()), para.getName(), para.getvalue());
 						arg.addANNOTATION("DefaultValue").string(para.getDefault());
 						arg.addANNOTATION("QueryParam").string(para.getName());
-						;
+
 						if (para.getType().contains(".")) {
 							proxy.addIMPORT(para.getType());
+						}
+					}
+				}
+				// add the context arguments
+				if(m.getContexts() != null && m.getContexts().getContext().size() >0) {
+					for(Context c : m.getContexts().getContext()) {
+						Java.Arg arg = method.addArg(shortName(c.getType()), c.getName(), c.getvalue());
+						arg.addANNOTATION("Context");
+						if(c.getType().contains(".")) {
+							proxy.addIMPORT(c.getType());
 						}
 					}
 				}

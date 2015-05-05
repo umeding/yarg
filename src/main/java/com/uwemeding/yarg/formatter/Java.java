@@ -1365,7 +1365,7 @@ public class Java {
 
 				// break the arguments across individual lines
 				if (args.isEmpty()) {
-					fp.println(modifier + retType + " " + methodName + "()");
+					fp.print(modifier + retType + " " + methodName + "()");
 				} else {
 					fp.println(modifier + retType + " " + methodName + "(");
 					boolean first = true;
