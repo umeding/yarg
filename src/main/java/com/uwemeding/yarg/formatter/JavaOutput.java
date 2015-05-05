@@ -102,9 +102,22 @@ public class JavaOutput extends OutputContextBase {
 					method.setComment(m.getDesc());
 				}
 				method.addANNOTATION(callType(m));
+				proxy.addIMPORT(callTypeImport(m));
 				method.addANNOTATION("Path").string(call.getPath());
 				method.setReturnComment("a REST response");
 				proxy.addIMPORT("javax.ws.rs.core.Response");
+
+				// Permissions
+				if (m.getRoles() == null) {
+					method.addANNOTATION("PermitAll");
+					proxy.addIMPORT("javax.annotation.security.PermitAll");
+				} else {
+					String[] roles = m.getRoles().getPermit().split(",");
+					if (roles.length > 0) {
+						method.addANNOTATION("RolesAllowed").string(roles);
+						proxy.addIMPORT("javax.annotation.security.RolesAllowed");
+					}
+				}
 
 				if (m.getRequestTemplates() != null) {
 					for (RequestTemplate temp : m.getRequestTemplates().getRequestTemplate()) {
@@ -137,11 +150,12 @@ public class JavaOutput extends OutputContextBase {
 					}
 				}
 				// add the context arguments
-				if(m.getContexts() != null && m.getContexts().getContext().size() >0) {
-					for(Context c : m.getContexts().getContext()) {
+				if (m.getContexts() != null && m.getContexts().getContext().size() > 0) {
+					for (Context c : m.getContexts().getContext()) {
 						Java.Arg arg = method.addArg(shortName(c.getType()), c.getName(), c.getvalue());
 						arg.addANNOTATION("Context");
-						if(c.getType().contains(".")) {
+						proxy.addIMPORT("javax.ws.rs.core.Context");
+						if (c.getType().contains(".")) {
 							proxy.addIMPORT(c.getType());
 						}
 					}

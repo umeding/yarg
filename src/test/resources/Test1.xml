@@ -8,7 +8,7 @@
 
 		<rest.call path="test/{id}" >
 
-			<method type="post" name="testPostCall">
+			<method call.type="post" name="testPostCall">
 				<desc>
 					Some test call. This is a longer description of the call.
 					More text on another line.
@@ -42,7 +42,7 @@
 				</examples>
 			</method>
 
-			<method type="get" name="testGetCall">
+			<method call.type="get" name="testGetCall">
 				<desc>Some GET call</desc>
 				<responses>
 					<response code="200" content.type="json">{"status":"OK"}</response>
@@ -52,7 +52,7 @@
 		</rest.call>
 
 		<rest.call path="parameter/call" name="parameterCall">
-			<method type="get">
+			<method call.type="get">
 				<desc>Get a parameter</desc>
 
 				<request.parameters>
@@ -69,7 +69,7 @@
 			More rest call description. Text text.
 		</desc>
 		<rest.call path="parameter/call" >
-			<method type="get" name="parameterCall">
+			<method call.type="get" name="parameterCall">
 				<desc>Get a parameter</desc>
 
 				<request.parameters>

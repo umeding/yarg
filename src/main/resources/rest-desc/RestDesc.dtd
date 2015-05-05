@@ -37,7 +37,7 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
                                                  path CDATA #REQUIRED
                                                  name CDATA #REQUIRED
 " >
-<!ENTITY % call.types                           "type (get | put | post | delete) 'get'" >
+<!ENTITY % call.types                           "call.type (get | put | post | delete) 'get'" >
 
 <!ENTITY % responses                            "responses" >
 <!ENTITY % response                             "response" >
@@ -45,6 +45,8 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
 <!ENTITY % request                              "request" >
 
 <!ENTITY % content.type                         "content.type (json | xml | csv | bash | text ) 'text'">
+
+<!ENTITY % roles                                "roles" >
 
 <!-- ...................................................................... -->
 <!-- Application .......................................................... -->
@@ -114,7 +116,13 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
           title   CDATA #REQUIRED
           %content.type; >
 
-<!ELEMENT %method;                    (%desc;,%contexts;,%request.templates;,%request;,%request.parameters;,%responses;,%examples;) >
+<!-- Roles -->
+<!-- comma-separated list: permit="user,administrator" -->
+<!ELEMENT %roles;                               EMPTY >
+<!ATTLIST %roles;
+          permit  CDATA #REQUIRED >
+
+<!ELEMENT %method;                    (%desc;,%contexts;,%roles;,%request.templates;,%request;,%request.parameters;,%responses;,%examples;) >
 <!ATTLIST %method;
           name    CDATA #REQUIRED
           %call.types;

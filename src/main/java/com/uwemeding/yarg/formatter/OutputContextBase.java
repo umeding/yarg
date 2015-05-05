@@ -17,9 +17,9 @@ import com.uwemeding.yarg.bindings.Response;
 public abstract class OutputContextBase implements OutputFormatContext {
 
 	protected String callType(Method m) {
-		switch (m.getType()) {
+		switch (m.getCallType()) {
 			default:
-				throw new YargException(m.getType() + ": unknown method call type");
+				throw new YargException(m.getCallType() + ": unknown method call type");
 			case "get":
 				return "GET";
 			case "put":
@@ -30,6 +30,21 @@ public abstract class OutputContextBase implements OutputFormatContext {
 				return "DELETE";
 		}
 	}
+
+    protected String callTypeImport(Method m) {
+        switch(m.getCallType()) {
+			default:
+				throw new YargException(m.getCallType() + ": unknown method call type");
+			case "get":
+				return "javax.ws.rs.GET";
+			case "put":
+				return "javax.ws.rs.PUT";
+			case "post":
+				return "javax.ws.rs.POST";
+			case "delete":
+				return "javax.ws.rs.DELETE";
+        }
+    }
 
 	protected String contentType(Request req) {
 		return contentType(req.getContentType());

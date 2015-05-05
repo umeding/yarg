@@ -206,7 +206,7 @@ public class MarkdownOutput extends OutputContextBase {
 
 	private Method findMethodByType(List<Method> methods, String type) {
 		for (Method m : methods) {
-			if (type.equals(m.getType())) {
+			if (type.equals(m.getCallType())) {
 				return m;
 			}
 		}
@@ -214,11 +214,11 @@ public class MarkdownOutput extends OutputContextBase {
 	}
 
 	private String declareAnchor(Method m) {
-		return "<a name=\"" + m.getType() + "\"></a>";
+		return "<a name=\"" + m.getCallType() + "\"></a>";
 	}
 
 	private String jumpPoint(Method m) {
-		return "#" + m.getType();
+		return "#" + m.getCallType();
 	}
 
 }
