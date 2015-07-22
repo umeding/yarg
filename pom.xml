@@ -4,7 +4,7 @@
 	<groupId>com.uwemeding</groupId>
 	<artifactId>yarg</artifactId>
 	<version>1.0</version>
-	<packaging>jar</packaging>
+	<packaging>maven-plugin</packaging>
 	<url>https://github.com/umeding/yarg</url>
 	<inceptionYear>2015</inceptionYear>
 
@@ -15,7 +15,7 @@
 		<url>https://github.com/umeding/yarg</url>
 		<connection>scm:git:ssh://git@github.com/umeding/yarg.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/umeding/yarg.git</developerConnection>
-		<tag>fuzzer-1.0</tag>
+		<tag>yarg-1.0</tag>
 	</scm>
 
 	<properties>
@@ -44,6 +44,26 @@
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-plugin-api</artifactId>
+			<version>3.3.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugin-tools</groupId>
+			<artifactId>maven-plugin-tools-annotations</artifactId>
+			<version>3.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-utils</artifactId>
+			<version>3.0.22</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-project</artifactId>
+			<version>3.0-alpha-2</version>
 		</dependency>
 	</dependencies>
 
@@ -75,6 +95,32 @@
 		<finalName>${project.artifactId}</finalName>
 
 		<plugins>
+			<!-- Maven plugin handler -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<version>3.4</version>
+				<configuration>
+					<goalPrefix>yarg</goalPrefix>
+					<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+				</configuration>
+				<executions>
+					<execution>
+						<id>mojo-descriptor</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>descriptor</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>help-goal</id>
+						<goals>
+							<goal>helpmojo</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 
 			<!-- gen up the code for the different dtd's -->
 			<plugin>
@@ -118,69 +164,11 @@
 	</build>
 
 	<profiles>
-		<!-- Create the standalone version for easy deployment -->
-<!--		<profile>
-			<id>standalone</id>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-assembly-plugin</artifactId>
-						<version>2.4</version>
-						<configuration>
-							<descriptors>
-								<descriptor>src/main/assembly/all.xml</descriptor>
-							</descriptors>
-							<archive>
-								<manifest>
-									<mainClass>com.uwemeding.fuzzer.Fuzzer</mainClass>
-									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-								</manifest>
-							</archive>
-						</configuration>
-						<executions>
-							<execution>
-								<id>make-assembly</id>
-								<phase>package</phase>
-								<goals>
-									<goal>single</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>-->
-
 		<!-- Create the release version -->
 		<profile>
 			<id>release</id>
 			<build>
 				<plugins>			
-					<!--					<plugin>
-						<artifactId>maven-assembly-plugin</artifactId>
-						<version>2.4</version>
-						<configuration>
-							<descriptors>
-								<descriptor>src/main/assembly/all.xml</descriptor>
-							</descriptors>
-							<archive>
-								<manifest>
-									<mainClass>com.uwemeding.fuzzer.Fuzzer</mainClass>
-									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-								</manifest>
-							</archive>
-						</configuration>
-						<executions>
-							<execution>
-								<id>make-assembly</id>
-								<phase>package</phase>
-								<goals>
-									<goal>single</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>-->
-					
 
 					<!-- sign the artifacts -->
 					<plugin>
