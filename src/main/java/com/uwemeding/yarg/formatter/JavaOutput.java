@@ -15,6 +15,8 @@ import com.uwemeding.yarg.bindings.RestCall;
 import com.uwemeding.yarg.bindings.RestCalls;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -25,9 +27,19 @@ import java.util.TreeSet;
  */
 public class JavaOutput extends OutputContextBase {
 
+	private String copyrightText;
+
 	@Override
 	public void create(File outputDir, Application app) throws YargException {
 		try {
+			if (app.getCopyright() == null) {
+				SimpleDateFormat yearFmt = new SimpleDateFormat("yyyy");
+				String year = yearFmt.format(new Date());
+				copyrightText = "Copyright (c) " + year + " -- All Rights Reserved.";
+			} else {
+				copyrightText = app.getCopyright();
+			}
+
 			createApplicationConfig(outputDir, app);
 
 			for (RestCalls restCalls : app.getRestCalls()) {
@@ -45,10 +57,13 @@ public class JavaOutput extends OutputContextBase {
 	}
 
 	private void createApplicationConfig(File outputDir, Application app) throws IOException {
+
 		String appConfigName = app.getName() == null ? "ApplicationConfig" : app.getName();
 		Java.CLASS clazz = Java.createClass("public", appConfigName);
-		clazz.addANNOTATION("ApplicationPath").string(app.getPath() == null ? "" : app.getPath());
+		clazz.setCopyright(copyrightText);
 		clazz.addIMPORT("javax.ws.rs.ApplicationPath");
+		clazz.addANNOTATION("ApplicationPath").plain("ApplicationConfig.APPLICATION_PATH");
+		clazz.addVAR("public static final", "String", "APPLICATION_PATH", "\"" + (app.getPath() == null ? "" : app.getPath()) + "\"");
 		clazz.setComment("Application Resources");
 
 		if (app.getPackage() != null && app.getPackage().getPath() != null) {
@@ -57,23 +72,6 @@ public class JavaOutput extends OutputContextBase {
 
 		clazz.setExtends("Application");
 		clazz.addIMPORT("javax.ws.rs.core.Application");
-
-		Java.METHOD method;
-
-		method = clazz.addMETHOD("public", "Set<Class<?>>", "getClasses");
-		method.setComment("Get the resource classes for this application");
-		method.addOverrideAnnotation();
-
-		Java.VAR var = method.addVAR(null, "Set<Class<?>>", "resources", "new HashSet<>()");
-		clazz.addIMPORT("java.util.Set", "java.util.HashSet");
-		method.addS("addRestResourceClasses(resources)");
-		method.addRETURN("resources");
-
-		method = clazz.addMETHOD("private", "void", "addRestResourceClasses");
-		method.setComment("Do not modify this method. It is automatically "
-				+ "populated with all resources defined in the project. If required, comment "
-				+ "out calling this method in getClasses().");
-		method.addArg("Set<Class<?>>", "resources", "the resource set");
 
 		Java.setBaseDirectory(outputDir);
 		Java.createSource(clazz, false);
@@ -86,6 +84,7 @@ public class JavaOutput extends OutputContextBase {
 			throws IOException {
 
 		Java.INTERFACE proxy = Java.createInterface("public", restCalls.getName());
+		proxy.setCopyright(copyrightText);
 		proxy.addEXTENDS("Serializable");
 		proxy.setPackage(app.getPackage().getPath());
 		proxy.addANNOTATION("Path").string(restCalls.getPath());
@@ -114,7 +113,7 @@ public class JavaOutput extends OutputContextBase {
 				} else {
 					String[] roles = m.getRoles().getPermit().split(",");
 					for (int i = 0; i < roles.length; i++) {
-						roles[i] = roles[i].trim().toUpperCase();
+						roles[i] = roles[i].trim();//.toUpperCase();
 					}
 					if (roles.length > 0) {
 						method.addANNOTATION("RolesAllowed").string(roles);

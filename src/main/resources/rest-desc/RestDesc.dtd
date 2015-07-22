@@ -6,6 +6,7 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
 -->
 
 <!ENTITY % application                          "application" >
+<!ENTITY % copyright                            "copyright" >
 <!ENTITY % package                              "package" >
 
 <!ENTITY % rest.calls                           "rest.calls" >
@@ -53,10 +54,12 @@ FPID: "-//MedingSoftwareTechnik//ELEMENTS REST Definitions V1.0//EN"
 <!-- 
      An application is the top level
 -->
-<!ELEMENT %application;                         (%package;,(%rest.calls;)*) >
+<!ELEMENT %application;                         (%copyright;,%package;,(%rest.calls;)*) >
 <!ATTLIST %application;
           %path.attr;
 >
+<!ELEMENT %copyright;							(#PCDATA) >
+
 <!ELEMENT %package;								EMPTY >
 <!ATTLIST %package;
           path CDATA #REQUIRED >
