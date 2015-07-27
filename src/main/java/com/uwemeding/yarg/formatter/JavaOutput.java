@@ -27,6 +27,9 @@ import java.util.TreeSet;
  */
 public class JavaOutput extends OutputContextBase {
 
+	private static final String SEP = "******************************************************";
+	private static final String GEN_NOTE = "* NOTE: GENERATED CONTENT -- CHANGES WILL DISAPPEAR! *";
+
 	private String copyrightText;
 
 	@Override
@@ -46,8 +49,7 @@ public class JavaOutput extends OutputContextBase {
 				createRestProxy(outputDir, app, restCalls);
 			}
 
-			System.out.println("Java output");
-
+//			System.out.println("Java output");
 			Java.INTERFACE business = Java.createInterface("public", app.getName());
 			Java.setBaseDirectory(outputDir);
 //			Java.createSource(clazz);
@@ -61,6 +63,11 @@ public class JavaOutput extends OutputContextBase {
 		String appConfigName = app.getName() == null ? "ApplicationConfig" : app.getName();
 		Java.CLASS clazz = Java.createClass("public", appConfigName);
 		clazz.setCopyright(copyrightText);
+
+		clazz.addC(true, SEP);
+		clazz.addC(true, GEN_NOTE);
+		clazz.addC(true, SEP);
+
 		clazz.addIMPORT("javax.ws.rs.ApplicationPath");
 		clazz.addANNOTATION("ApplicationPath").plain("ApplicationConfig.APPLICATION_PATH");
 		clazz.addVAR("public static final", "String", "APPLICATION_PATH", "\"" + (app.getPath() == null ? "" : app.getPath()) + "\"");
@@ -74,7 +81,9 @@ public class JavaOutput extends OutputContextBase {
 		clazz.addIMPORT("javax.ws.rs.core.Application");
 
 		Java.setBaseDirectory(outputDir);
-		Java.createSource(clazz, false);
+
+		//Java.createSource(clazz, false);  // don't override
+		Java.createSource(clazz);
 	}
 
 	/*
@@ -85,6 +94,11 @@ public class JavaOutput extends OutputContextBase {
 
 		Java.INTERFACE proxy = Java.createInterface("public", restCalls.getName());
 		proxy.setCopyright(copyrightText);
+
+		proxy.addC(true, SEP);
+		proxy.addC(true, GEN_NOTE);
+		proxy.addC(true, SEP);
+
 		proxy.addEXTENDS("Serializable");
 		proxy.setPackage(app.getPackage().getPath());
 		proxy.addANNOTATION("Path").string(restCalls.getPath());
@@ -98,11 +112,25 @@ public class JavaOutput extends OutputContextBase {
 			for (Method m : call.getMethod()) {
 				Java.METHOD method = proxy.addMETHOD("Response", m.getName());
 				if (m.getDesc() != null) {
-					method.setComment(m.getDesc());
+					method.setComment(StringUtils.collapseWhitespace(m.getDesc()));
 				}
 				method.addANNOTATION(callType(m));
 				proxy.addIMPORT(callTypeImport(m));
-				method.addANNOTATION("Path").string(call.getPath());
+
+				// Create the @Path parameter, we also must include the position
+				// parameter names
+				String pathDesc;
+				if (m.getRequestTemplates() != null) {
+					StringBuilder sb = new StringBuilder(call.getPath());
+					for (RequestTemplate temp : m.getRequestTemplates().getRequestTemplate()) {
+						sb.append("/{").append(temp.getName()).append("}");
+					}
+					pathDesc = sb.toString();
+				} else {
+					pathDesc = call.getPath();
+				}
+				method.addANNOTATION("Path").string(pathDesc);
+
 				method.setReturnComment("a REST response");
 				proxy.addIMPORT("javax.ws.rs.core.Response");
 
@@ -125,8 +153,11 @@ public class JavaOutput extends OutputContextBase {
 					for (RequestTemplate temp : m.getRequestTemplates().getRequestTemplate()) {
 						method.addArg(shortName(temp.getType()), temp.getName(), temp.getvalue())
 								.addANNOTATION("PathParam").string(temp.getName());
+
+						proxy.addIMPORT("javax.ws.rs.PathParam");
+
 						if (temp.getType().contains(".")) {
-							proxy.addIMPORT(temp.getType());
+							addAnImportIfNeeded(app, proxy, temp.getType());
 						}
 					}
 				}
@@ -138,16 +169,21 @@ public class JavaOutput extends OutputContextBase {
 					proxy.addIMPORT("javax.ws.rs.Consumes");
 
 					method.addArg(shortArgType, argName, shortArgType);
-					proxy.addIMPORT(argType);
+					addAnImportIfNeeded(app, proxy, argType);
 
 				} else if (m.getRequestParameters() != null) {
 					for (RequestParameter para : m.getRequestParameters().getRequestParameter()) {
 						Java.Arg arg = method.addArg(shortName(para.getType()), para.getName(), para.getvalue());
-						arg.addANNOTATION("DefaultValue").string(para.getDefault());
 						arg.addANNOTATION("QueryParam").string(para.getName());
+						if (para.getDefault() != null) {
+							arg.addANNOTATION("DefaultValue").string(para.getDefault());
+						}
+
+						proxy.addIMPORT("javax.ws.rs.DefaultValue");
+						proxy.addIMPORT("javax.ws.rs.QueryParam");
 
 						if (para.getType().contains(".")) {
-							proxy.addIMPORT(para.getType());
+							addAnImportIfNeeded(app, proxy, para.getType());
 						}
 					}
 				}
@@ -158,7 +194,7 @@ public class JavaOutput extends OutputContextBase {
 						arg.addANNOTATION("Context");
 						proxy.addIMPORT("javax.ws.rs.core.Context");
 						if (c.getType().contains(".")) {
-							proxy.addIMPORT(c.getType());
+							addAnImportIfNeeded(app, proxy, c.getType());
 						}
 					}
 				}
@@ -178,6 +214,18 @@ public class JavaOutput extends OutputContextBase {
 
 		Java.setBaseDirectory(outputDir);
 		Java.createSource(proxy);
+	}
+
+	// See if a desired import is in the package already
+	private void addAnImportIfNeeded(Application app, Java.INTERFACE iface, String importName) {
+		String packageName = app.getPackage().getPath();
+		int last = importName.lastIndexOf(".");
+		if (last > 0) {
+			String path = importName.substring(0, last);
+			if (!packageName.equals(path)) {
+				iface.addIMPORT(importName);
+			}
+		}
 	}
 
 }

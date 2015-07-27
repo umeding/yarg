@@ -32,7 +32,7 @@ public class MarkdownOutput extends OutputContextBase {
 
 	@Override
 	public void create(File outputDir, Application app) throws YargException {
-		System.out.println("Markdown output");
+//		System.out.println("Markdown output");
 
 		File path = app.getPath().startsWith("/") ? new File(app.getPath()) : new File("/" + app.getPath());
 

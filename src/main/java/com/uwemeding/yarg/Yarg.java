@@ -82,7 +82,7 @@ public class Yarg {
 				context.create(outputdir, app);
 			}
 		}
-		System.out.println("--> done.");
+//		System.out.println("--> done.");
 	}
 
 	public static void main(String... av) throws Exception {

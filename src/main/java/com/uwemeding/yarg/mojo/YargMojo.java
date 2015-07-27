@@ -65,6 +65,17 @@ public class YargMojo extends AbstractMojo {
 	private File outputDirectory;
 
 	/**
+	 * Java source directory
+	 */
+	@Parameter(defaultValue = "${basedir}/src/main/java", property = "javaSourceDirectory", required = false)
+	private File javaSourceDirectory;
+
+	/**
+	 * Indicate if we want to output to the java source dir
+	 */
+	@Parameter(defaultValue = "false", property = "outputToJavaSource", required = false)
+	private String outputToJavaSource;
+	/**
 	 * The granularity in milliseconds of the last modification date for testing
 	 * whether a source needs recompilation.
 	 */
@@ -134,7 +145,7 @@ public class YargMojo extends AbstractMojo {
 	 * @return the output directory
 	 */
 	public File getOutputDirectory() {
-		return outputDirectory;
+		return getOutputToJavaSourceValue() ? javaSourceDirectory : outputDirectory;
 	}
 
 	/**
@@ -144,6 +155,18 @@ public class YargMojo extends AbstractMojo {
 	 */
 	public String getFormatter() {
 		return formatter;
+	}
+
+	public File getJavaSourceDirectory() {
+		return javaSourceDirectory;
+	}
+
+	public String getOutputToJavaSource() {
+		return outputToJavaSource;
+	}
+
+	public boolean getOutputToJavaSourceValue() {
+		return Boolean.parseBoolean(outputToJavaSource);
 	}
 
 	/**
@@ -244,7 +267,7 @@ public class YargMojo extends AbstractMojo {
 	 */
 	@Override
 	public void execute() throws MojoExecutionException {
-		getLog().info("Running YARG mojo");
+		getLog().info("Running YARG for "+getFormatter());
 
 		YargInfo[] grammarInfos = scanForGrammars();
 
@@ -273,8 +296,9 @@ public class YargMojo extends AbstractMojo {
 	 */
 	private String[] generateArgs(YargInfo info) {
 		List<String> argsList = new ArrayList<>();
-		if (outputDirectory != null) {
-			argsList.add("--outputdir=" + outputDirectory.getAbsolutePath());
+		File outputdir = getOutputDirectory();
+		if (outputdir != null) {
+			argsList.add("--outputdir=" + outputdir.getAbsolutePath());
 		}
 		if (packageName != null) {
 			argsList.add("--package=" + packageName);
