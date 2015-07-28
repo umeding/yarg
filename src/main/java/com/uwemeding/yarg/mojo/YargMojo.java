@@ -283,7 +283,7 @@ public class YargMojo extends AbstractMojo {
 				processRESTDescriptions(grammarInfo);
 			}
 
-			getLog().info("Processed " + grammarInfos.length + " program" + (grammarInfos.length != 1 ? "s" : ""));
+			getLog().info("Processed " + grammarInfos.length + " description" + (grammarInfos.length != 1 ? "s" : ""));
 		}
 
 	}

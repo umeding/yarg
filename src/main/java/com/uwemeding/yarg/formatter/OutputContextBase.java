@@ -5,10 +5,13 @@ package com.uwemeding.yarg.formatter;
 
 import com.uwemeding.yarg.OutputFormatContext;
 import com.uwemeding.yarg.YargException;
+import com.uwemeding.yarg.bindings.Application;
 import com.uwemeding.yarg.bindings.Example;
 import com.uwemeding.yarg.bindings.Method;
 import com.uwemeding.yarg.bindings.Request;
 import com.uwemeding.yarg.bindings.Response;
+import com.uwemeding.yarg.bindings.RestCall;
+import com.uwemeding.yarg.bindings.RestCalls;
 
 /**
  *
@@ -31,8 +34,8 @@ public abstract class OutputContextBase implements OutputFormatContext {
 		}
 	}
 
-    protected String callTypeImport(Method m) {
-        switch(m.getCallType()) {
+	protected String callTypeImport(Method m) {
+		switch (m.getCallType()) {
 			default:
 				throw new YargException(m.getCallType() + ": unknown method call type");
 			case "get":
@@ -43,8 +46,8 @@ public abstract class OutputContextBase implements OutputFormatContext {
 				return "javax.ws.rs.POST";
 			case "delete":
 				return "javax.ws.rs.DELETE";
-        }
-    }
+		}
+	}
 
 	protected String contentType(Request req) {
 		return contentType(req.getContentType());
@@ -64,25 +67,34 @@ public abstract class OutputContextBase implements OutputFormatContext {
 				return "application/xml";
 			case "text":
 				return "text/plain";
+			case "csv":
+				return "text/csv";
 		}
 	}
 
 	protected String mdContentType(Example example) {
 		return mdContentType(example.getContentType());
-		
+
 	}
-	
+
 	protected String mdContentType(Request req) {
 		return mdContentType(req.getContentType());
 	}
 
 	protected String mdContentType(String string) {
 		switch (string) {
-			case "text": return "";
-			case "json": return "json";
-			case "xml": return "xml";
-			case "java": return "java";
-			case "bash": return "bash";
+			case "text":
+				return "";
+			case "json":
+				return "json";
+			case "xml":
+				return "xml";
+			case "java":
+				return "java";
+			case "bash":
+				return "bash";
+			case "csv":
+				return "csv";
 			default:
 				throw new YargException(string + ": unknown content type");
 		}
@@ -94,6 +106,32 @@ public abstract class OutputContextBase implements OutputFormatContext {
 			return fullName.substring(lastIndex + 1);
 		} else {
 			return fullName;
+		}
+	}
+
+	/**
+	 * {@inheritDoc }
+	 */
+	@Override
+	public void prepare(Application app) throws YargException {
+
+		// Set the method name to the rest call path if not set. Append the
+		// call type if we have more than one call.
+		for (RestCalls restCalls : app.getRestCalls()) {
+			for (RestCall restCall : restCalls.getRestCall()) {
+				if (restCall.getMethod().size() == 1) {
+					Method m = restCall.getMethod().get(0);
+					if (m.getName() == null) {
+						m.setName(restCall.getPath());
+					}
+				} else {
+					for (Method m : restCall.getMethod()) {
+						if (m.getName() == null) {
+							m.setName(restCall.getPath() + "_" + m.getCallType());
+						}
+					}
+				}
+			}
 		}
 	}
 

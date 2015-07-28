@@ -79,6 +79,8 @@ public class Yarg {
 		for (int i = options.getOptind(); i < av.length; i++) {
 			try (FileInputStream fp = new FileInputStream(av[i])) {
 				Application app = new RestDescBuilder().fromXML(fp);
+
+				context.prepare(app);
 				context.create(outputdir, app);
 			}
 		}
