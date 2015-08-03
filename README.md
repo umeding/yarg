@@ -18,3 +18,21 @@ target="_blank">JAX-RS spec</a>, Section 3.6, p. 19:
 
 This means that you need to add `@Path("...")` on the __implementing__
 resource to make it work.
+For example:
+```java
+public interface ExclusionServices extends Serializable {
+    @GET
+    @Path("getRootExclusion")
+    @PermitAll
+    @Produces("application/json")
+    Response getRootExclusion();
+}
+
+@Path("excluder")
+public class ExclusionServicesImpl implements ExclusionServices {
+
+	@Override
+	public Response getRootExclusion() {
+    }
+}
+```
