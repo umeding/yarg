@@ -15,5 +15,6 @@ target="_blank">JAX-RS spec</a>, Section 3.6, p. 19:
 > multiple implemented interfaces is implementation specific.
 > Note that inheritance of class or interface annotations
 > is not supported.
+
 This means that you need to add `@Path("...")` on the __implementing__
 resource to make it work.
