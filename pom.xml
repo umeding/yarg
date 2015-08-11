@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.uwemeding</groupId>
 	<artifactId>yarg</artifactId>
-	<version>1.1</version>
+	<version>1.2</version>
 	<packaging>maven-plugin</packaging>
 	<url>https://github.com/umeding/yarg</url>
 	<inceptionYear>2015</inceptionYear>
@@ -15,7 +15,7 @@
 		<url>https://github.com/umeding/yarg</url>
 		<connection>scm:git:ssh://git@github.com/umeding/yarg.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/umeding/yarg.git</developerConnection>
-		<tag>yarg-${version}</tag>
+		<tag>yarg-${project.version}</tag>
 	</scm>
 
 	<properties>

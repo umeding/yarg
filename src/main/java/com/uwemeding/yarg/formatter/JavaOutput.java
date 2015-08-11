@@ -82,8 +82,18 @@ public class JavaOutput extends OutputContextBase {
 
 		Java.setBaseDirectory(outputDir);
 
-		//Java.createSource(clazz, false);  // don't override
-		Java.createSource(clazz);
+		// implement the getClasses method.
+		Java.METHOD classes = clazz.addMETHOD("public", "Set<Class<?>>", "getClasses");
+		classes.setComment("Declare the implementing classes for this application");
+		classes.setReturnComment("The set of classes for this application");
+		classes.addOverrideAnnotation();
+		clazz.addIMPORT("java.util.Set", "java.util.HashSet");
+		classes.addS("Set<Class<?>> classes = new HashSet<>()");
+		classes.addC(true, "add the implementing classes here");
+		classes.addRETURN("classes");
+		
+		Java.createSource(clazz, false);  // don't override
+//		Java.createSource(clazz);
 	}
 
 	/*
