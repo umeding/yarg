@@ -226,7 +226,7 @@ public class Java {
 		 * Write the statement to the output stream.
 		 * <p>
 		 * @param indent the text indent
-		 * @param fp the output stream
+		 * @param fp     the output stream
 		 */
 		void emit(int indent, PrintWriter fp);
 	}
@@ -417,9 +417,9 @@ public class Java {
 		/**
 		 * Adds a feature to the FOR attribute of the _StatementBlock object
 		 * <p>
-		 * @param start The feature to be added to the FOR attribute
+		 * @param start     The feature to be added to the FOR attribute
 		 * @param condition The feature to be added to the FOR attribute
-		 * @param iter The feature to be added to the FOR attribute
+		 * @param iter      The feature to be added to the FOR attribute
 		 * @return
 		 */
 		public Java.FOR addFOR(String start, String condition, String iter) {
@@ -696,7 +696,7 @@ public class Java {
 		 * Construct a comment.
 		 * <p>
 		 * @param oneLine is this a one line comment?
-		 * @param s the comment text
+		 * @param s       the comment text
 		 */
 		public C(boolean oneLine, String s) {
 			this.s = s.trim();
@@ -716,7 +716,7 @@ public class Java {
 		 * {@inheritDoc }
 		 *
 		 * @param indent the text indentation
-		 * @param fp the file handle
+		 * @param fp     the file handle
 		 */
 		@Override
 		public void emit(int indent, PrintWriter fp) {
@@ -1178,6 +1178,7 @@ public class Java {
 		private String modifier;
 		private String retType;
 		private String methodName;
+		private boolean isInheritDoc;
 		private String comment;
 		private boolean isInterface;
 		private String returns;
@@ -1232,6 +1233,12 @@ public class Java {
 			if (comment != null) {
 				this.comment = comment.trim();
 			}
+			this.isInheritDoc = false;
+		}
+
+		public void setInheritDoc() {
+			this.comment = null;
+			this.isInheritDoc = true;
 		}
 
 		public void setReturnComment(String comment) {
@@ -1275,8 +1282,8 @@ public class Java {
 		/**
 		 * Adds a feature to the Arg attribute of the Method object
 		 * <p>
-		 * @param type The feature to be added to the Arg attribute
-		 * @param name The feature to be added to the Arg attribute
+		 * @param type    The feature to be added to the Arg attribute
+		 * @param name    The feature to be added to the Arg attribute
 		 * @param comment The feature to be added to the Arg attribute
 		 */
 		public Arg addArg(String type, String name, String comment) {
@@ -1317,21 +1324,25 @@ public class Java {
 				}
 				Java.emitCommentIndentNOnly(fp, comment, indent);
 			} else {
-				if (comment == null) {
-					comment = "Description of the method.";
-				}
-				Java.emitCommentIndentNOnly(fp, comment, indent);
-				for (Arg arg : args) {
-					arg.emitComment(indent, fp);
-				}
-				if (retType.length() > 0 && retType.indexOf("void") < 0) {
-					String c;
-					if (returns == null) {
-						c = "a " + retType;
-					} else {
-						c = returns;
+				if (isInheritDoc) {
+					Java.emitCommentIndentNOnly(fp, "{inheritDoc}", indent, false);
+				} else {
+					if (comment == null) {
+						comment = "Description of the method.";
 					}
-					Java.emitCommentIndentNOnly(fp, "@return " + c, indent, false);
+					Java.emitCommentIndentNOnly(fp, comment, indent);
+					for (Arg arg : args) {
+						arg.emitComment(indent, fp);
+					}
+					if (retType.length() > 0 && retType.indexOf("void") < 0) {
+						String c;
+						if (returns == null) {
+							c = "a " + retType;
+						} else {
+							c = returns;
+						}
+						Java.emitCommentIndentNOnly(fp, "@return " + c, indent, false);
+					}
 				}
 
 				if (thrws.size() > 0) {
@@ -1607,16 +1618,16 @@ public class Java {
 		 * <p>
 		 * @param	name	attribute name
 		 * @param	type	attribute data type
-		 * @param	def	attribute default value
+		 * @param	def	 attribute default value
 		 * <p>
 		 */
 		/**
 		 * Adds getters and setters for a given property with the given data
 		 * type and default value;
 		 * <p>
-		 * @param name attribute name
-		 * @param type attribute data type
-		 * @param def attribute default value
+		 * @param name     attribute name
+		 * @param type     attribute data type
+		 * @param def      attribute default value
 		 * @param readOnly
 		 */
 		public void addProperty(String type, String name, String def, boolean readOnly) {
@@ -1640,7 +1651,7 @@ public class Java {
 		 * <p>
 		 * @param type the data type
 		 * @param name the property name
-		 * @param def the default value
+		 * @param def  the default value
 		 */
 		public void addProperty(String type, String name, String def) {
 			addProperty(name, type, def, false);
@@ -1651,7 +1662,7 @@ public class Java {
 		 * <p>
 		 * @param type the data type
 		 * @param name the property name
-		 * @param def the default value
+		 * @param def  the default value
 		 */
 		public void addReadOnlyProperty(String type, String name, String def) {
 			addProperty(name, type, def, true);

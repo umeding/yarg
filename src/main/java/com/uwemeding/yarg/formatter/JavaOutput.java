@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -47,6 +48,7 @@ public class JavaOutput extends OutputContextBase {
 
 			for (RestCalls restCalls : app.getRestCalls()) {
 				createRestProxy(outputDir, app, restCalls);
+				createRestProxyImpl(outputDir, app, restCalls);
 			}
 
 //			System.out.println("Java output");
@@ -91,9 +93,87 @@ public class JavaOutput extends OutputContextBase {
 		classes.addS("Set<Class<?>> classes = new HashSet<>()");
 		classes.addC(true, "add the implementing classes here");
 		classes.addRETURN("classes");
-		
+
 		Java.createSource(clazz, false);  // don't override
 //		Java.createSource(clazz);
+	}
+
+	/*
+	 * Create the REST proxy implementation.
+	 */
+	private void createRestProxyImpl(File outputDir, Application app, RestCalls restCalls)
+			throws IOException {
+
+		String implName = restCalls.getName() + "Impl";
+		Java.CLASS impl = Java.createClass("public", implName);
+		impl.setPackage(app.getPackage().getPath());
+		impl.setCopyright(copyrightText);
+
+		if (restCalls.getDesc() != null) {
+			impl.setComment(StringUtils.collapseWhitespace(restCalls.getDesc()));
+		}
+
+		impl.addIMPL(restCalls.getName());
+		impl.addANNOTATION("Path").string(restCalls.getPath());
+		impl.addIMPORT("javax.ws.rs.Path", "java.io.Serializable");
+
+		// a logger
+		impl.addVAR("private static final", "Logger", "log", "Logger.getLogger(" + implName + ".class.getName())");
+		impl.addIMPORT("java.util.logging.Logger");
+
+		// the serial version
+		long serialVer = new Random(System.currentTimeMillis()).nextLong();
+		impl.addVAR("private static final", "long", "serialVersionUID", String.valueOf(serialVer) + "L");
+
+		impl.addIMPORT("javax.ws.rs.core.Response");
+		for (RestCall call : restCalls.getRestCall()) {
+			for (Method m : call.getMethod()) {
+				Java.METHOD method = impl.addMETHOD("public", "Response", m.getName());
+				method.addOverrideAnnotation();
+				method.setInheritDoc();
+				method.addS("throw new UnsupportedOperationException(\"" + m.getName() + "(): not implemented yet\")");
+
+				if (m.getRequestTemplates() != null) {
+					for (RequestTemplate temp : m.getRequestTemplates().getRequestTemplate()) {
+						method.addArg(shortName(temp.getType()), temp.getName(), temp.getvalue());
+
+
+						if (temp.getType().contains(".")) {
+							addAnImportIfNeeded(app, impl, temp.getType());
+						}
+					}
+				}
+				if (m.getRequest() != null) {
+					String argName = m.getRequest().getName();
+					String argType = m.getRequest().getType();
+					String shortArgType = shortName(argType);
+
+					method.addArg(shortArgType, argName, shortArgType);
+					addAnImportIfNeeded(app, impl, argType);
+
+				} else if (m.getRequestParameters() != null) {
+					for (RequestParameter para : m.getRequestParameters().getRequestParameter()) {
+						Java.Arg arg = method.addArg(shortName(para.getType()), para.getName(), para.getvalue());
+
+						if (para.getType().contains(".")) {
+							addAnImportIfNeeded(app, impl, para.getType());
+						}
+					}
+				}
+				// add the context arguments
+				if (m.getContexts() != null && m.getContexts().getContext().size() > 0) {
+					for (Context c : m.getContexts().getContext()) {
+						Java.Arg arg = method.addArg(shortName(c.getType()), c.getName(), c.getvalue());
+						if (c.getType().contains(".")) {
+							addAnImportIfNeeded(app, impl, c.getType());
+						}
+					}
+				}
+			}
+		}
+		Java.createSource(impl, false);  // don't override
+//		Java.createSource(impl);  // override
+
 	}
 
 	/*
@@ -111,8 +191,6 @@ public class JavaOutput extends OutputContextBase {
 
 		proxy.addEXTENDS("Serializable");
 		proxy.setPackage(app.getPackage().getPath());
-		proxy.addANNOTATION("Path").string(restCalls.getPath());
-		proxy.addIMPORT("javax.ws.rs.Path", "java.io.Serializable");
 
 		if (restCalls.getDesc() != null) {
 			proxy.setComment(StringUtils.collapseWhitespace(restCalls.getDesc()));
@@ -227,13 +305,13 @@ public class JavaOutput extends OutputContextBase {
 	}
 
 	// See if a desired import is in the package already
-	private void addAnImportIfNeeded(Application app, Java.INTERFACE iface, String importName) {
+	private void addAnImportIfNeeded(Application app, Java._ClassBody body, String importName) {
 		String packageName = app.getPackage().getPath();
 		int last = importName.lastIndexOf(".");
 		if (last > 0) {
 			String path = importName.substring(0, last);
 			if (!packageName.equals(path)) {
-				iface.addIMPORT(importName);
+				body.addIMPORT(importName);
 			}
 		}
 	}

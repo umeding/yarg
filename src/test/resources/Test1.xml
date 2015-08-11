@@ -51,7 +51,7 @@
 			</method>
 		</rest.call>
 
-		<rest.call path="parameter/call" name="parameterCall">
+		<rest.call path="parameterCall" name="parameterCall">
 			<method call.type="get">
 				<desc>Get a parameter</desc>
 
