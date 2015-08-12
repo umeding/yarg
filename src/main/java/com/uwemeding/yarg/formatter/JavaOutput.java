@@ -66,10 +66,6 @@ public class JavaOutput extends OutputContextBase {
 		Java.CLASS clazz = Java.createClass("public", appConfigName);
 		clazz.setCopyright(copyrightText);
 
-		clazz.addC(true, SEP);
-		clazz.addC(true, GEN_NOTE);
-		clazz.addC(true, SEP);
-
 		clazz.addIMPORT("javax.ws.rs.ApplicationPath");
 		clazz.addANNOTATION("ApplicationPath").plain("ApplicationConfig.APPLICATION_PATH");
 		clazz.addVAR("public static final", "String", "APPLICATION_PATH", "\"" + (app.getPath() == null ? "" : app.getPath()) + "\"");
@@ -115,7 +111,7 @@ public class JavaOutput extends OutputContextBase {
 
 		impl.addIMPL(restCalls.getName());
 		impl.addANNOTATION("Path").string(restCalls.getPath());
-		impl.addIMPORT("javax.ws.rs.Path", "java.io.Serializable");
+		impl.addIMPORT("javax.ws.rs.Path");
 
 		// a logger
 		impl.addVAR("private static final", "Logger", "log", "Logger.getLogger(" + implName + ".class.getName())");
@@ -196,6 +192,7 @@ public class JavaOutput extends OutputContextBase {
 			proxy.setComment(StringUtils.collapseWhitespace(restCalls.getDesc()));
 		}
 
+		proxy.addIMPORT("javax.ws.rs.Path", "java.io.Serializable");
 		for (RestCall call : restCalls.getRestCall()) {
 			for (Method m : call.getMethod()) {
 				Java.METHOD method = proxy.addMETHOD("Response", m.getName());
