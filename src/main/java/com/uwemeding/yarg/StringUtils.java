@@ -96,6 +96,9 @@ public class StringUtils {
 	 * @return the first sentence
 	 */
 	public static String firstSentence(String text) {
+		if (text == null) {
+			return "";
+		}
 		char[] cs = collapseWhitespace(text).toCharArray();
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < cs.length; i++) {

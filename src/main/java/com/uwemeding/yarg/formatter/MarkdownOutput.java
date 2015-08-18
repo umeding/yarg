@@ -75,7 +75,6 @@ public class MarkdownOutput extends OutputContextBase {
 						}
 
 						String mdRestCallMethod = restCalls.getName() + "/" + mdRestCall + jumpPoint(m);
-						fp.println("__" + callType(m) + "__ | [`" + restCallPath + "`](" + mdRestCallMethod + ") | " + StringUtils.firstSentence(m.getDesc()));
 					}
 				}
 				fp.println();
