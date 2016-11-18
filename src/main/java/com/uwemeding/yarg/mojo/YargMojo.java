@@ -52,6 +52,9 @@ public class YargMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${basedir}/src/main/yarg", property = "sourceDir")
 	private File sourceDirectory;
 
+	@Parameter(defaultValue = "${project.build.directory}", property = "sourceDir")
+	private File buildDir;
+
 	/**
 	 * Output formatter
 	 */
@@ -166,7 +169,13 @@ public class YargMojo extends AbstractMojo {
 	}
 
 	public boolean getOutputToJavaSourceValue() {
-		return Boolean.parseBoolean(outputToJavaSource);
+		switch (getFormatter()) {
+			case "java":
+				return Boolean.parseBoolean(outputToJavaSource);
+
+			default:
+				return false;
+		}
 	}
 
 	/**
@@ -267,23 +276,33 @@ public class YargMojo extends AbstractMojo {
 	 */
 	@Override
 	public void execute() throws MojoExecutionException {
-		getLog().info("Running YARG for "+getFormatter());
+		getLog().info("Running YARG for " + getFormatter());
 
-		YargInfo[] grammarInfos = scanForGrammars();
+		// Save the working dir
+		String savedWD = System.getProperty("user.dir");
+		try {
+			// Set WD so we can find all the relative paths
+			System.setProperty("user.dir", buildDir.getParentFile().getAbsolutePath());
 
-		if (grammarInfos == null) {
-			getLog().info("Skipping non-existing source directory: " + getSourceDirectory());
-			return;
-		} else if (grammarInfos.length <= 0) {
-			getLog().info("Skipping - all parsers are up to date");
-		} else {
-			determineNonGeneratedSourceRoots();
+			YargInfo[] grammarInfos = scanForGrammars();
 
-			for (YargInfo grammarInfo : grammarInfos) {
-				processRESTDescriptions(grammarInfo);
+			if (grammarInfos == null) {
+				getLog().info("Skipping non-existing source directory: " + getSourceDirectory());
+				return;
+			} else if (grammarInfos.length <= 0) {
+				getLog().info("Skipping - all parsers are up to date");
+			} else {
+				determineNonGeneratedSourceRoots();
+
+				for (YargInfo grammarInfo : grammarInfos) {
+					processRESTDescriptions(grammarInfo);
+				}
+
+				getLog().info("Processed " + grammarInfos.length + " description" + (grammarInfos.length != 1 ? "s" : ""));
 			}
-
-			getLog().info("Processed " + grammarInfos.length + " description" + (grammarInfos.length != 1 ? "s" : ""));
+		} finally {
+			// Reset the working dir
+			System.setProperty("user.dir", savedWD);
 		}
 
 	}
